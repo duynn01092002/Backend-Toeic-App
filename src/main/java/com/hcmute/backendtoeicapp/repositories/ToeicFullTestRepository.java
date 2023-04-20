@@ -1,4 +1,9 @@
 package com.hcmute.backendtoeicapp.repositories;
 
-public interface ToeicFullTestRepository {
+import com.hcmute.backendtoeicapp.entities.ToeicFullTestEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface ToeicFullTestRepository extends JpaRepository<ToeicFullTestEntity, Integer> {
 }
