@@ -55,7 +55,6 @@ public class ToeicStorageServiceImpl implements ToeicStorageService {
             if (e instanceof FileAlreadyExistsException) {
                 throw new RuntimeException("Tên file đã tồn tại");
             }
-            e.printStackTrace();
             throw new RuntimeException(e.getMessage());
         }
     }
