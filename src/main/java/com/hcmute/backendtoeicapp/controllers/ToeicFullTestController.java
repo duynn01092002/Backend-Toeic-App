@@ -1,5 +1,6 @@
 package com.hcmute.backendtoeicapp.controllers;
 
+import com.hcmute.backendtoeicapp.AppConfiguration;
 import com.hcmute.backendtoeicapp.base.BaseResponse;
 import com.hcmute.backendtoeicapp.dto.toeicFullTest.CreateToeicFullTestRequest;
 import com.hcmute.backendtoeicapp.dto.toeicFullTest.UpdateToeicFullTestRequest;
@@ -13,6 +14,11 @@ import org.springframework.web.bind.annotation.*;
 public class ToeicFullTestController {
     @Autowired
     private ToeicFullTestService toeicFullTestService;
+
+    @Autowired
+    private AppConfiguration appConfiguration;
+
+
 
     @GetMapping("{id}")
     public BaseResponse getToeicFullTest(
