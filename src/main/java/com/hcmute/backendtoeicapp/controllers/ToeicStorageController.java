@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.zip.ZipFile;
 
 @RestController
 @CrossOrigin("*")
@@ -24,6 +25,13 @@ public class ToeicStorageController {
     @PostMapping("uploads")
     public BaseResponse uploadFile(@RequestParam("file") MultipartFile file) {
         return this.toeicStorageService.save(file);
+    }
+
+    @Deprecated
+    @PostMapping("upload-zip-file")
+    public BaseResponse uploadZipFile(
+            @RequestParam("file") MultipartFile zipFile) throws IOException {
+        return this.toeicStorageService.uploadZipFile(zipFile);
     }
 
     @GetMapping("downloads/{id}")
@@ -44,4 +52,6 @@ public class ToeicStorageController {
                 .contentLength(buffer.length) //
                 .body(resource);
     }
+
+
 }
