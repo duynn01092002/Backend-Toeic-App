@@ -27,6 +27,7 @@ public class ToeicStorageController {
         return this.toeicStorageService.save(file);
     }
 
+    @Deprecated
     @PostMapping("upload-zip-file")
     public BaseResponse uploadZipFile(
             @RequestParam("file") MultipartFile zipFile) throws IOException {
