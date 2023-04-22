@@ -14,4 +14,6 @@ public interface ToeicPartService {
     BaseResponse getAllToeicPart();
 
     BaseResponse deleteToeicPartById(Integer id);
+
+    BaseResponse getToeicPartByToeicFullTestId(Integer id);
 }

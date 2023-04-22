@@ -48,4 +48,10 @@ public class ToeicPartController {
         BaseResponse response = this.toeicPartService.deleteToeicPartById(id);
         return response;
     }
+
+    @GetMapping("test/{id}")
+    public BaseResponse getToeicPartListByFullTestId(@PathVariable Integer id) {
+        BaseResponse response = this.toeicPartService.getToeicPartByToeicFullTestId(id);
+        return response;
+    }
 }
