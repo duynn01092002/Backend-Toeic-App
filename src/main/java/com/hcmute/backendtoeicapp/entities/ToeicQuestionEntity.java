@@ -11,6 +11,7 @@ public class ToeicQuestionEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private Integer questionNumber;
+    private String correctAnswer;
     @ManyToOne
     @JoinColumn(name="toeic_question_group_id")
     private ToeicQuestionGroupEntity toeicQuestionGroupEntity;
