@@ -2,6 +2,7 @@ package com.hcmute.backendtoeicapp.services;
 
 import com.hcmute.backendtoeicapp.AppConfiguration;
 import com.hcmute.backendtoeicapp.base.BaseResponse;
+import com.hcmute.backendtoeicapp.base.ErrorResponse;
 import com.hcmute.backendtoeicapp.base.SuccessfulResponse;
 import com.hcmute.backendtoeicapp.entities.ToeicStorageEntity;
 import com.hcmute.backendtoeicapp.repositories.ToeicStorageRepository;
@@ -9,13 +10,20 @@ import com.hcmute.backendtoeicapp.services.interfaces.ToeicStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartRequest;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
 import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 @Service
 public class ToeicStorageServiceImpl implements ToeicStorageService {
@@ -65,6 +73,60 @@ public class ToeicStorageServiceImpl implements ToeicStorageService {
         Path path = Paths.get(this.appConfiguration.getToeicStoreDirectory(), toeicStorageEntity.getFileName());
         byte[] datas = Files.readAllBytes(path);
         return datas;
+    }
+
+    @Override
+    public BaseResponse uploadZipFile(MultipartFile zipFile) throws IOException {
+        String fileZipName = zipFile.getOriginalFilename();
+        String fileExtension = ".zip";
+        if (!getFileExtension(fileZipName).equals(fileExtension)) {
+            ErrorResponse response = new ErrorResponse();
+            response.setMessage("File upload phải là file zip");
+            return response;
+        }
+        InputStream inputStream = zipFile.getInputStream();
+        ZipInputStream zipInputStream = new ZipInputStream(inputStream);
+
+
+        ZipEntry zipEntry;
+
+        List<ToeicStorageEntity> toeicStorageEntities = new ArrayList<>();
+
+        while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+            String fileName = randomFileName(zipEntry.getName());
+
+            Path root = Paths.get(this.appConfiguration.getToeicStoreDirectory());
+            if (zipEntry.isDirectory()) {
+                File file = new File(root.resolve(zipEntry.getName()).toString());
+                if (!file.exists()){
+                    file.mkdirs();
+                }
+                ToeicStorageEntity toeicStorageEntity = new ToeicStorageEntity();
+                toeicStorageEntity.setFileName(fileName);
+                this.toeicStorageRepository.save(toeicStorageEntity);
+                toeicStorageEntities.add(toeicStorageEntity);
+            }
+            else {
+                File file = new File(root.resolve(zipEntry.getName()).toString());
+                FileOutputStream os = new FileOutputStream(file);
+                for (int c = zipInputStream.read(); c != -1; c = zipInputStream.read()) {
+                    os.write(c);
+                }
+                os.close();
+
+
+                ToeicStorageEntity toeicStorageEntity = new ToeicStorageEntity();
+                toeicStorageEntity.setFileName(fileName);
+                this.toeicStorageRepository.save(toeicStorageEntity);
+                toeicStorageEntities.add(toeicStorageEntity);
+            }
+
+        }
+
+        SuccessfulResponse response = new SuccessfulResponse();
+        response.setMessage("Upload file zip thành công");
+        response.setData(toeicStorageEntities);
+        return response;
     }
 
     private static String getFileExtension(String name) {
