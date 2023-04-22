@@ -11,6 +11,7 @@ public class ToeicItemContentEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String contentType;
+    @Column(columnDefinition = "TEXT")
     private String content;
     @ManyToOne
     @JoinColumn(name="toeic_storage_id")
