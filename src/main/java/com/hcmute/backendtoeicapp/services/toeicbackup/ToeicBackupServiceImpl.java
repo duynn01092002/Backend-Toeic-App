@@ -143,33 +143,37 @@ public class ToeicBackupServiceImpl implements ToeicBackupService {
                     }
                 }
 
-                for (ToeicItemContentBackupModel questionContent : group.getQuestionContents()) {
-                    ToeicItemContentEntity toeicItemContentEntity = new ToeicItemContentEntity();
-                    toeicItemContentEntity.setContentType(questionContent.getType());
-                    toeicItemContentEntity.setContent(questionContent.getContent());
-                    toeicItemContentEntity.setToeicQuestionGroupEntityQuestionContent(questionGroupEntity);
-                    toeicItemContentRepository.save(toeicItemContentEntity);
+                if (group.getQuestionContents() != null) {
+                    for (ToeicItemContentBackupModel questionContent : group.getQuestionContents()) {
+                        ToeicItemContentEntity toeicItemContentEntity = new ToeicItemContentEntity();
+                        toeicItemContentEntity.setContentType(questionContent.getType());
+                        toeicItemContentEntity.setContent(questionContent.getContent());
+                        toeicItemContentEntity.setToeicQuestionGroupEntityQuestionContent(questionGroupEntity);
+                        toeicItemContentRepository.save(toeicItemContentEntity);
 
-                    if (questionContent.getType().equals("AUDIO") || questionContent.getType().equals("IMAGE")) {
-                        if (!fileMapping.containsKey(questionContent.getContent())) {
-                            throw new RuntimeException("File not found " + questionContent.getContent());
+                        if (questionContent.getType().equals("AUDIO") || questionContent.getType().equals("IMAGE")) {
+                            if (!fileMapping.containsKey(questionContent.getContent())) {
+                                throw new RuntimeException("File not found " + questionContent.getContent());
+                            }
+
+                            String fileName = randomFileName(questionContent.getContent());
+                            Path root = Paths.get(this.appConfiguration.getToeicStoreDirectory());
+                            Files.copy(new ByteArrayInputStream(fileMapping.get(questionContent.getContent())), root.resolve(fileName));
+                            ToeicStorageEntity toeicStorageEntity = new ToeicStorageEntity();
+                            toeicStorageEntity.setFileName(fileName);
+                            this.toeicStorageRepository.save(toeicStorageEntity);
                         }
-
-                        String fileName = randomFileName(questionContent.getContent());
-                        Path root = Paths.get(this.appConfiguration.getToeicStoreDirectory());
-                        Files.copy(new ByteArrayInputStream(fileMapping.get(questionContent.getContent())), root.resolve(fileName));
-                        ToeicStorageEntity toeicStorageEntity = new ToeicStorageEntity();
-                        toeicStorageEntity.setFileName(fileName);
-                        this.toeicStorageRepository.save(toeicStorageEntity);
                     }
                 }
 
-                for (ToeicItemContentBackupModel transcript : group.getTranscript()) {
-                    ToeicItemContentEntity toeicItemContentEntity = new ToeicItemContentEntity();
-                    toeicItemContentEntity.setContentType(transcript.getType());
-                    toeicItemContentEntity.setContent(transcript.getContent());
-                    toeicItemContentEntity.setToeicQuestionGroupEntityTranscript(questionGroupEntity);
-                    toeicItemContentRepository.save(toeicItemContentEntity);
+                if (group.getTranscript() != null) {
+                    for (ToeicItemContentBackupModel transcript : group.getTranscript()) {
+                        ToeicItemContentEntity toeicItemContentEntity = new ToeicItemContentEntity();
+                        toeicItemContentEntity.setContentType(transcript.getType());
+                        toeicItemContentEntity.setContent(transcript.getContent());
+                        toeicItemContentEntity.setToeicQuestionGroupEntityTranscript(questionGroupEntity);
+                        toeicItemContentRepository.save(toeicItemContentEntity);
+                    }
                 }
 
             }
