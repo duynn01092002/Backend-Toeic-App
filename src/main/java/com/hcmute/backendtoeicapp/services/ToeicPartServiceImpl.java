@@ -129,4 +129,18 @@ public class ToeicPartServiceImpl implements ToeicPartService {
         response.setMessage("Xóa dữ liệu thành công");
         return response;
     }
+
+    @Override
+    public BaseResponse getToeicPartByToeicFullTestId(Integer id) {
+        if (!this.toeicFullTestRepository.existsById(id)) {
+            ErrorResponse response = new ErrorResponse();
+            response.setMessage("Không tồn tại toeic full test với id = " + id);
+            return response;
+        }
+        List<ToeicPartEntity> toeicPartEntities = this.toeicPartRepository.getToeicPartEntitiesByToeicFullTestId(id);
+        SuccessfulResponse response = new SuccessfulResponse();
+        response.setMessage("Lấy dữ liệu thành công");
+        response.setData(toeicPartEntities);
+        return response;
+    }
 }

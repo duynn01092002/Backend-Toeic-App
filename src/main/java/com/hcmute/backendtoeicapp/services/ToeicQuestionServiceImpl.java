@@ -12,6 +12,7 @@ import com.hcmute.backendtoeicapp.services.interfaces.ToeicQuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -21,6 +22,15 @@ public class ToeicQuestionServiceImpl implements ToeicQuestionService {
 
     @Autowired
     private ToeicQuestionGroupRepository toeicQuestionGroupRepository;
+
+    private static List<String> getCorrectAnswers() {
+        List<String> correctAnswers = new ArrayList<>();
+        correctAnswers.add("A");
+        correctAnswers.add("B");
+        correctAnswers.add("C");
+        correctAnswers.add("D");
+        return correctAnswers;
+    }
 
     @Override
     public BaseResponse getToeicQuestionById(Integer id) {
@@ -49,11 +59,17 @@ public class ToeicQuestionServiceImpl implements ToeicQuestionService {
     public BaseResponse createToeicQuestion(CreateToeicQuestionRequest request) {
         if (!this.toeicQuestionGroupRepository.existsById(request.getToeicQuestionGroupId())) {
             ErrorResponse response = new ErrorResponse();
-            response.setData("Không tồn tại toeic question group với id = " + request.getToeicQuestionGroupId());
+            response.setMessage("Không tồn tại toeic question group với id = " + request.getToeicQuestionGroupId());
+            return response;
+        }
+        if (!(getCorrectAnswers().contains(request.getCorrectAnswer()))) {
+            ErrorResponse response = new ErrorResponse();
+            response.setMessage("Đáp án đúng phải thuộc A, B, C, D");
             return response;
         }
         ToeicQuestionEntity toeicQuestionEntity = new ToeicQuestionEntity();
         toeicQuestionEntity.setQuestionNumber(request.getQuestionNumber());
+        toeicQuestionEntity.setCorrectAnswer(request.getCorrectAnswer());
         toeicQuestionEntity.setToeicQuestionGroupEntity(
                 this.toeicQuestionGroupRepository.getById(request.getToeicQuestionGroupId()));
         this.toeicQuestionRepository.save(toeicQuestionEntity);
@@ -68,6 +84,11 @@ public class ToeicQuestionServiceImpl implements ToeicQuestionService {
         if (!this.toeicQuestionRepository.existsById(request.getId())) {
             ErrorResponse response = new ErrorResponse();
             response.setMessage("Không tồn tại toeic question với id = " + request.getId());
+            return response;
+        }
+        if (!(getCorrectAnswers().contains(request.getCorrectAnswer()))) {
+            ErrorResponse response = new ErrorResponse();
+            response.setMessage("Đáp án đúng phải thuộc A, B, C, D");
             return response;
         }
         ToeicQuestionEntity toeicQuestionEntity = this.toeicQuestionRepository.getById(request.getId());

@@ -8,5 +8,6 @@ public class UpdateToeicQuestionRequest {
     @JsonIgnore
     private Integer id;
     private Integer questionNumber;
+    private String correctAnswer;
     private Integer toeicQuestionGroupId;
 }
