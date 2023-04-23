@@ -167,6 +167,7 @@ public class ToeicBackupServiceImpl implements ToeicBackupService {
 
                             // Audio + Image thì không cần cái content làm chi
                             toeicItemContentEntity.setContent(null);
+                            toeicItemContentEntity.setToeicStorageEntity(toeicStorageEntity);
                             toeicItemContentRepository.save(toeicItemContentEntity);
                         }
                     }
