@@ -9,6 +9,8 @@ public interface ToeicItemContentService {
 
     BaseResponse getToeicItemContentById(Integer id);
 
+    BaseResponse getQuestionItemContentsByGroupId(Integer groupId);
+
     BaseResponse createToeicItemContent(CreateToeicItemContentRequest request) throws Exception;
 
     BaseResponse updateToeicItemContent(UpdateToeicItemContentRequest request) throws Exception;

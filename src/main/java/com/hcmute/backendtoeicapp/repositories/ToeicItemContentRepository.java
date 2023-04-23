@@ -12,11 +12,18 @@ import java.util.List;
 public interface ToeicItemContentRepository extends JpaRepository<ToeicItemContentEntity, Integer> {
     @Query("SELECT CASE WHEN COUNT(u) > 0 THEN TRUE ELSE FALSE END FROM ToeicItemContentEntity u WHERE u.id=:id")
     boolean existsById(@Param("id") Integer id);
+
     @Query("SELECT u FROM ToeicItemContentEntity u WHERE u.id=:id")
     ToeicItemContentEntity getById(@Param("id") Integer id);
+
     @Query("SELECT u FROM ToeicItemContentEntity u WHERE u.toeicQuestionGroupEntityQuestionContent.id = :id")
     List<ToeicItemContentEntity> getListQuestionContentByQuestionGroupId(@Param("id") Integer id);
 
     @Query("SELECT u FROM ToeicItemContentEntity u WHERE u.toeicQuestionGroupEntityTranscript.id = :id")
     List<ToeicItemContentEntity> getListTranscriptByQuestionGroupId(@Param("id") Integer id);
+
+    @Query("SELECT u FROM ToeicItemContentEntity u WHERE u.toeicQuestionGroupEntityQuestionContent.id = :groupId")
+    List<ToeicItemContentEntity> getToeicQuestionItemContentByGroupId(
+            @Param("groupId") Integer groupId
+    );
 }

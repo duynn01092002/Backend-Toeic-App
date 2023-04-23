@@ -27,6 +27,14 @@ public class ToeicItemContentController {
         return response;
     }
 
+    @GetMapping("get-question-contents-by-group/{id}")
+    public BaseResponse getQuestionContentsByGroupId(
+            @PathVariable Integer id
+    ) {
+        BaseResponse response = this.toeicItemContentService.getQuestionItemContentsByGroupId(id);
+        return response;
+    }
+
     @PostMapping("")
     public BaseResponse createToeicItemContent(
             @RequestBody CreateToeicItemContentRequest request) throws Exception {
