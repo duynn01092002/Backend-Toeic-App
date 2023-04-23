@@ -65,7 +65,7 @@ public class ToeicItemContentServiceImpl implements ToeicItemContentService {
             throw new RuntimeException("Không tìm thấy group nào với id = " + groupId);
         }
 
-        List<ToeicItemContentEntity> result = this.toeicItemContentRepository.getToeicQuestionItemContentByGroupId(groupId);
+        List<ToeicItemContentEntity> result = this.toeicItemContentRepository.getListQuestionContentByQuestionGroupId(groupId);
 
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Lấy dữ liệu thành công");

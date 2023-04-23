@@ -21,9 +21,4 @@ public interface ToeicItemContentRepository extends JpaRepository<ToeicItemConte
 
     @Query("SELECT u FROM ToeicItemContentEntity u WHERE u.toeicQuestionGroupEntityTranscript.id = :id")
     List<ToeicItemContentEntity> getListTranscriptByQuestionGroupId(@Param("id") Integer id);
-
-    @Query("SELECT u FROM ToeicItemContentEntity u WHERE u.toeicQuestionGroupEntityQuestionContent.id = :groupId")
-    List<ToeicItemContentEntity> getToeicQuestionItemContentByGroupId(
-            @Param("groupId") Integer groupId
-    );
 }
