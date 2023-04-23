@@ -9,6 +9,7 @@ public interface ToeicQuestionGroupService {
     BaseResponse createToeicQuestionGroup(CreateToeicQuestionGroupRequest request);
     BaseResponse getAllToeicQuestiongroup();
     BaseResponse getToeicQuestionGroupById(Integer id);
+    BaseResponse getToeicQuestionGroupsByPartId(Integer id);
     BaseResponse updateToeicQuestionById(Integer id, UpdateToeicQuestionGroupRequest request);
     BaseResponse deleteToeicQuestionById(Integer id);
 }

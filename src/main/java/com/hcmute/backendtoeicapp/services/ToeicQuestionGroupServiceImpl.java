@@ -72,6 +72,21 @@ public class ToeicQuestionGroupServiceImpl implements ToeicQuestionGroupService 
     }
 
     @Override
+    public BaseResponse getToeicQuestionGroupsByPartId(Integer id) {
+        if (!this.toeicPartRepository.existsById(id)) {
+            throw new RuntimeException("Không tìm thấy part nào với id là " + id);
+        }
+
+        final List<ToeicQuestionGroupEntity> result = this.toeicQuestionGroupRepository.getToeicQuestionGroupEntitiesByToeicPartEntity(id);
+
+        SuccessfulResponse response = new SuccessfulResponse();
+        response.setMessage("Lấy dữ liệu thành công");
+        response.setData(result);
+
+        return response;
+    }
+
+    @Override
     public BaseResponse updateToeicQuestionById(Integer id, UpdateToeicQuestionGroupRequest request) {
         if (!this.toeicQuestionGroupRepository.existsById(id)) {
             ErrorResponse response = new ErrorResponse();

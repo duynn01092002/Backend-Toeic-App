@@ -34,6 +34,14 @@ public class ToeicQuestionGroupController {
         return  response;
     }
 
+    @GetMapping("get-groups-by-part/{id}")
+    public BaseResponse getToeicQuestionGroupsByPartId(
+            @PathVariable Integer id
+    ) {
+        BaseResponse response = this.toeicQuestionGroupService.getToeicQuestionGroupsByPartId(id);
+        return response;
+    }
+
     @PutMapping("{id}")
     public BaseResponse updateToeicQuestionGroupById(
             @PathVariable Integer id,
