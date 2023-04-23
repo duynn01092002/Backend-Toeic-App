@@ -164,6 +164,10 @@ public class ToeicBackupServiceImpl implements ToeicBackupService {
                             ToeicStorageEntity toeicStorageEntity = new ToeicStorageEntity();
                             toeicStorageEntity.setFileName(fileName);
                             this.toeicStorageRepository.save(toeicStorageEntity);
+
+                            // Audio + Image thì không cần cái content làm chi
+                            toeicItemContentEntity.setContent(null);
+                            toeicItemContentRepository.save(toeicItemContentEntity);
                         }
                     }
                 }
