@@ -9,6 +9,8 @@ public interface ToeicQuestionService {
 
     BaseResponse getAllToeicQuestions();
 
+    BaseResponse getToeicQuestionsByGroupId(Integer groupId);
+
     BaseResponse createToeicQuestion(CreateToeicQuestionRequest request);
 
     BaseResponse updateToeicQuestion(UpdateToeicQuestionRequest request);

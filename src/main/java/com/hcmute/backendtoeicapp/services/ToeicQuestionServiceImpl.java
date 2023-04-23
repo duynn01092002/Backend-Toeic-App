@@ -56,6 +56,21 @@ public class ToeicQuestionServiceImpl implements ToeicQuestionService {
     }
 
     @Override
+    public BaseResponse getToeicQuestionsByGroupId(Integer groupId) {
+        if (!this.toeicQuestionGroupRepository.existsById(groupId)) {
+            throw new RuntimeException("Không tìm thấy group nào với id = " + groupId);
+        }
+
+        final List<ToeicQuestionEntity> result = this.toeicQuestionRepository.getToeicQuestionEntitiesByToeicQuestionGroup(groupId);
+
+        SuccessfulResponse response = new SuccessfulResponse();
+        response.setMessage("Lấy dữ liệu thành công");
+        response.setData(result);
+
+        return response;
+    }
+
+    @Override
     public BaseResponse createToeicQuestion(CreateToeicQuestionRequest request) {
         if (!this.toeicQuestionGroupRepository.existsById(request.getToeicQuestionGroupId())) {
             ErrorResponse response = new ErrorResponse();

@@ -27,6 +27,14 @@ public class ToeicQuestionController {
         return response;
     }
 
+    @GetMapping("get-questions-by-group/{id}")
+    public BaseResponse getQuestionsByGroupId(
+            @PathVariable Integer id
+    ) {
+        BaseResponse response = this.toeicQuestionService.getToeicQuestionsByGroupId(id);
+        return response;
+    }
+
     @PostMapping("")
     public BaseResponse createToeicQuestion(@RequestBody CreateToeicQuestionRequest request) {
         BaseResponse response = this.toeicQuestionService.createToeicQuestion(request);
