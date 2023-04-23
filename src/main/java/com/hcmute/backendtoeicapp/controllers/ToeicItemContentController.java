@@ -35,6 +35,14 @@ public class ToeicItemContentController {
         return response;
     }
 
+    @GetMapping("get-transcripts-by-group/{id}")
+    public BaseResponse getTranscriptsByGroupId(
+            @PathVariable Integer id
+    ) {
+        BaseResponse response = this.toeicItemContentService.getTranscriptContentsByGroupId(id);
+        return response;
+    }
+
     @PostMapping("")
     public BaseResponse createToeicItemContent(
             @RequestBody CreateToeicItemContentRequest request) throws Exception {

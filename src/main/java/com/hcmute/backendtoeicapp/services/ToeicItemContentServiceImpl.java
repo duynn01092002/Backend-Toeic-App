@@ -75,6 +75,21 @@ public class ToeicItemContentServiceImpl implements ToeicItemContentService {
     }
 
     @Override
+    public BaseResponse getTranscriptContentsByGroupId(Integer groupId) {
+        if (!this.toeicQuestionGroupRepository.existsById(groupId)) {
+            throw new RuntimeException("Không tìm thấy group nào với id = " + groupId);
+        }
+
+        List<ToeicItemContentEntity> result = this.toeicItemContentRepository.getListTranscriptByQuestionGroupId(groupId);
+
+        SuccessfulResponse response = new SuccessfulResponse();
+        response.setMessage("Lấy dữ liệu thành công");
+        response.setData(result);
+
+        return response;
+    }
+
+    @Override
     public BaseResponse createToeicItemContent(CreateToeicItemContentRequest request) throws Exception {
         List<String> contentTypes = getContentTypes();
         if (!contentTypes.contains(request.getContentType())) {
