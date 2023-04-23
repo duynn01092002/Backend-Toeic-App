@@ -131,6 +131,8 @@ public class ToeicBackupServiceImpl implements ToeicBackupService {
                     ToeicQuestionEntity questionEntity = new ToeicQuestionEntity();
                     questionEntity.setQuestionNumber(question.getQuestionNumber());
                     questionEntity.setToeicQuestionGroupEntity(questionGroupEntity);
+                    questionEntity.setCorrectAnswer(question.getCorrectAnswer());
+                    questionEntity.setContent(question.getQuestion());
                     toeicQuestionRepository.save(questionEntity);
 
                     for (ToeicAnswerChoiceBackupModel choice : question.getChoices()) {

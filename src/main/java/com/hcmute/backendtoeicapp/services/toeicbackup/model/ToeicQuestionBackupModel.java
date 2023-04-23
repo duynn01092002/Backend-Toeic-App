@@ -9,6 +9,8 @@ import java.util.List;
 @Data
 public class ToeicQuestionBackupModel {
     private Integer questionNumber;
+    private String question;
+    private String correctAnswer;
 
     public List<ToeicAnswerChoiceBackupModel> choices;
 

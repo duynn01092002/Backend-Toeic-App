@@ -12,6 +12,7 @@ public class ToeicQuestionEntity {
     private Integer id;
     private Integer questionNumber;
     private String correctAnswer;
+    private String content;
     @ManyToOne
     @JoinColumn(name="toeic_question_group_id")
     private ToeicQuestionGroupEntity toeicQuestionGroupEntity;
