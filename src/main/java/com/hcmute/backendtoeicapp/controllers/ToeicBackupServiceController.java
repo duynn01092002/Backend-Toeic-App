@@ -19,7 +19,12 @@ public class ToeicBackupServiceController {
     @PostMapping("restore-toeic-test")
     @Transactional
     public BaseResponse restoreToeicTest(
-            @RequestParam("file")MultipartFile file ) throws IOException {
-        return this.toeicBackupService.restoreToeicTest(file);
+            @RequestParam("file")MultipartFile file ) {
+        try {
+            return this.toeicBackupService.restoreToeicTest(file);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 }
