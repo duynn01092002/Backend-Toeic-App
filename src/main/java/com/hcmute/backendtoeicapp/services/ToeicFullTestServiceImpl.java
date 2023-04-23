@@ -7,7 +7,9 @@ import com.hcmute.backendtoeicapp.base.SuccessfulResponse;
 import com.hcmute.backendtoeicapp.dto.toeicFullTest.CreateToeicFullTestRequest;
 import com.hcmute.backendtoeicapp.dto.toeicFullTest.UpdateToeicFullTestRequest;
 import com.hcmute.backendtoeicapp.entities.ToeicFullTestEntity;
+import com.hcmute.backendtoeicapp.entities.ToeicPartEntity;
 import com.hcmute.backendtoeicapp.repositories.ToeicFullTestRepository;
+import com.hcmute.backendtoeicapp.repositories.ToeicPartRepository;
 import com.hcmute.backendtoeicapp.services.interfaces.ToeicFullTestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,14 +24,23 @@ public class ToeicFullTestServiceImpl implements ToeicFullTestService {
     @Autowired
     private ToeicFullTestRepository toeicFullTestRepository;
 
+    @Autowired
+    private ToeicPartRepository toeicPartRepository;
+
     @Override
     public BaseResponse createToeicFullTest(CreateToeicFullTestRequest request) {
         ToeicFullTestEntity toeicFullTestEntity = new ToeicFullTestEntity();
 
         toeicFullTestEntity.setFullName(request.getFullName());
         toeicFullTestEntity.setSlug(toSlug(request.getFullName()));
-
         this.toeicFullTestRepository.save(toeicFullTestEntity);
+
+        for (int i = 1;i <= 7;i++) {
+            ToeicPartEntity toeicPartEntity = new ToeicPartEntity();
+            toeicPartEntity.setPartNumber(i);
+            toeicPartEntity.setToeicFullTestEntity(toeicFullTestEntity);
+            this.toeicPartRepository.save(toeicPartEntity);
+        }
 
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Tạo dữ liệu thành công");
