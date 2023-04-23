@@ -3,13 +3,21 @@ package com.hcmute.backendtoeicapp.services;
 import com.hcmute.backendtoeicapp.base.BaseResponse;
 import com.hcmute.backendtoeicapp.base.ErrorResponse;
 import com.hcmute.backendtoeicapp.base.SuccessfulResponse;
+import com.hcmute.backendtoeicapp.dto.toeicItemContent.ToeicItemContentResponse;
 import com.hcmute.backendtoeicapp.dto.toeicPart.UpdateToeicPartRequest;
+import com.hcmute.backendtoeicapp.dto.toeicQuestion.ToeicQuestionResponse;
 import com.hcmute.backendtoeicapp.dto.toeicQuestionGroup.CreateToeicQuestionGroupRequest;
+import com.hcmute.backendtoeicapp.dto.toeicQuestionGroup.ToeicQuestionGroupResponse;
 import com.hcmute.backendtoeicapp.dto.toeicQuestionGroup.UpdateToeicQuestionGroupRequest;
+import com.hcmute.backendtoeicapp.entities.ToeicItemContentEntity;
 import com.hcmute.backendtoeicapp.entities.ToeicPartEntity;
+import com.hcmute.backendtoeicapp.entities.ToeicQuestionEntity;
 import com.hcmute.backendtoeicapp.entities.ToeicQuestionGroupEntity;
+import com.hcmute.backendtoeicapp.repositories.ToeicItemContentRepository;
 import com.hcmute.backendtoeicapp.repositories.ToeicPartRepository;
 import com.hcmute.backendtoeicapp.repositories.ToeicQuestionGroupRepository;
+import com.hcmute.backendtoeicapp.repositories.ToeicQuestionRepository;
+import com.hcmute.backendtoeicapp.services.interfaces.ToeicItemContentService;
 import com.hcmute.backendtoeicapp.services.interfaces.ToeicQuestionGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +32,13 @@ public class ToeicQuestionGroupServiceImpl implements ToeicQuestionGroupService 
 
     @Autowired
     private ToeicPartRepository toeicPartRepository;
+
+    @Autowired
+    private ToeicQuestionRepository toeicQuestionRepository;
+
+    @Autowired
+    private ToeicItemContentRepository toeicItemContentRepository;
+
     @Override
     public BaseResponse createToeicQuestionGroup(CreateToeicQuestionGroupRequest request) {
         if (!this.toeicPartRepository.existsById(request.getToeicPartId())) {
@@ -63,12 +78,49 @@ public class ToeicQuestionGroupServiceImpl implements ToeicQuestionGroupService 
             return  response;
         }
 
-        ToeicQuestionGroupEntity toeicQuestionGroupEntity = this.toeicQuestionGroupRepository.getById(id);
+        final ToeicQuestionGroupEntity temp = this.toeicQuestionGroupRepository.getById(id);
+        final ToeicQuestionGroupResponse result = this.getToeicQuestionGroupByIdInner(temp.getId());
 
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Lấy dữ liệu thành công");
-        response.setData(toeicQuestionGroupEntity);
+        response.setData(result);
         return  response;
+    }
+
+    private ToeicQuestionGroupResponse getToeicQuestionGroupByIdInner(Integer groupId) {
+        if (!this.toeicQuestionGroupRepository.existsById(groupId)) {
+            throw new RuntimeException("Not found question group with = " + groupId);
+        }
+        final ToeicQuestionGroupEntity entity = this.toeicQuestionGroupRepository.getById(groupId);
+
+        final List<ToeicQuestionEntity> questionEntities =
+                this.toeicQuestionRepository.getToeicQuestionEntitiesByToeicQuestionGroup(groupId);
+        final List<ToeicQuestionResponse> questionResponses =
+                questionEntities.stream()
+                .map(ToeicQuestionResponse::new)
+                .toList();
+
+        final List<ToeicItemContentEntity> questionContentEntities =
+                this.toeicItemContentRepository.getListQuestionContentByQuestionGroupId(groupId);
+        final List<ToeicItemContentResponse> questionContentResponses =
+                questionContentEntities.stream()
+                .map(ToeicItemContentResponse::new)
+                .toList();
+
+        final List<ToeicItemContentEntity> transcriptContentEntities =
+                this.toeicItemContentRepository.getListQuestionContentByQuestionGroupId(groupId);
+        final List<ToeicItemContentResponse> transcriptContentResponses =
+                questionContentEntities.stream()
+                        .map(ToeicItemContentResponse::new)
+                        .toList();
+
+        final ToeicQuestionGroupResponse model = new ToeicQuestionGroupResponse();
+        model.setId(entity.getId());
+        model.setQuestions(questionResponses);
+        model.setQuestionContents(questionContentResponses);
+        model.setTranscripts(transcriptContentResponses);
+
+        return model;
     }
 
     @Override
@@ -77,7 +129,12 @@ public class ToeicQuestionGroupServiceImpl implements ToeicQuestionGroupService 
             throw new RuntimeException("Không tìm thấy part nào với id là " + id);
         }
 
-        final List<ToeicQuestionGroupEntity> result = this.toeicQuestionGroupRepository.getToeicQuestionGroupEntitiesByToeicPartEntity(id);
+        final List<ToeicQuestionGroupEntity> temp = this.toeicQuestionGroupRepository.getToeicQuestionGroupEntitiesByToeicPartEntity(id);
+        final List<ToeicQuestionGroupResponse> result = new ArrayList<>();
+
+        for (ToeicQuestionGroupEntity entity : temp) {
+            result.add(this.getToeicQuestionGroupByIdInner(entity.getId()));
+        }
 
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Lấy dữ liệu thành công");

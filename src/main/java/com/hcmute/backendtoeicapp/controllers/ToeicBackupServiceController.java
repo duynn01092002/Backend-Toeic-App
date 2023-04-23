@@ -24,6 +24,7 @@ public class ToeicBackupServiceController {
             return this.toeicBackupService.restoreToeicTest(file);
         }
         catch (IOException e) {
+            e.printStackTrace();
             throw new RuntimeException(e.getMessage());
         }
     }
