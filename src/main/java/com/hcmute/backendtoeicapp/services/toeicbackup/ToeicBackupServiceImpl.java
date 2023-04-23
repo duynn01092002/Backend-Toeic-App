@@ -110,10 +110,17 @@ public class ToeicBackupServiceImpl implements ToeicBackupService {
 //                }
 //            }
 //        }
+        int counter = 1;
+        String newSlug = toeicFullTestBackupModel.getSlug();
+
+        while (toeicFullTestRepository.getToeicFullTestBySlug(newSlug) != null) {
+            newSlug = toeicFullTestBackupModel.getSlug() + "-" + counter;
+            counter++;
+        }
 
         ToeicFullTestEntity toeicFullTestEntity = new ToeicFullTestEntity();
         toeicFullTestEntity.setFullName(toeicFullTestBackupModel.getFullName());
-        toeicFullTestEntity.setSlug(toeicFullTestBackupModel.getSlug());
+        toeicFullTestEntity.setSlug(newSlug);
         toeicFullTestRepository.save(toeicFullTestEntity);
 
         for (ToeicPartBackupModel part : toeicFullTestBackupModel.getParts()) {

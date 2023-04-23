@@ -10,6 +10,12 @@ import org.springframework.stereotype.Repository;
 public interface ToeicFullTestRepository extends JpaRepository<ToeicFullTestEntity, Integer> {
     @Query("SELECT CASE WHEN COUNT(u) > 0 THEN TRUE ELSE FALSE END FROM ToeicFullTestEntity u WHERE u.id=:id")
     boolean existsById(@Param("id") Integer id);
+
     @Query("SELECT u FROM ToeicFullTestEntity u WHERE u.id = :id")
     ToeicFullTestEntity getById(@Param("id") Integer id);
+
+    @Query("SELECT u FROM ToeicFullTestEntity u WHERE u.slug = :slug")
+    ToeicFullTestEntity getToeicFullTestBySlug(
+            @Param("slug") String slug
+    );
 }
