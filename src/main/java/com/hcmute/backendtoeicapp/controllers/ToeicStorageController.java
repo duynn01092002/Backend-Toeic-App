@@ -8,11 +8,17 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.MimeType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.datatransfer.MimeTypeParseException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URLConnection;
+import java.nio.file.FileSystemNotFoundException;
+import java.util.Map;
 import java.util.zip.ZipFile;
 
 @RestController
@@ -32,6 +38,27 @@ public class ToeicStorageController {
     public BaseResponse uploadZipFile(
             @RequestParam("file") MultipartFile zipFile) throws IOException {
         return this.toeicStorageService.uploadZipFile(zipFile);
+    }
+
+    @GetMapping("view/{id}")
+    public ResponseEntity viewFile(
+            @PathVariable Integer id
+    ) {
+        final Map<String, Object> temp = this.toeicStorageService.getFileNameAndStream(id);
+        final String fileName = temp.get("fileName").toString();
+        final byte[] stream = (byte[])temp.get("stream");
+
+        final MediaType mediaType = MediaType.parseMediaType(
+                URLConnection.guessContentTypeFromName(fileName)
+        );
+
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(stream);
+        InputStreamResource resource = new InputStreamResource(inputStream);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + fileName)
+                .contentType(mediaType)
+                .contentLength(stream.length)
+                .body(resource);
     }
 
     @GetMapping("downloads/{id}")

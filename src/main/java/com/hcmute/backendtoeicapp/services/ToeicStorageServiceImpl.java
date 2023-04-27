@@ -17,10 +17,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -43,6 +40,44 @@ public class ToeicStorageServiceImpl implements ToeicStorageService {
         } catch (IOException e) {
             throw new RuntimeException("Không tạo được folder để upload !");
         }
+    }
+
+    @Override
+    public ToeicStorageEntity saveUploadedFileAndReturnEntity(MultipartFile uploadedFile) throws IOException {
+        String fileName = randomFileName(uploadedFile.getOriginalFilename());
+        Path root = Paths.get(this.appConfiguration.getToeicStoreDirectory());
+        Files.copy(uploadedFile.getInputStream(), root.resolve(fileName));
+        ToeicStorageEntity toeicStorageEntity = new ToeicStorageEntity();
+        toeicStorageEntity.setFileName(fileName);
+        this.toeicStorageRepository.save(toeicStorageEntity);
+        return toeicStorageEntity;
+    }
+
+    @Override
+    public Map<String, Object> getFileNameAndStream(Integer id) {
+        if (!this.toeicStorageRepository.existsById(id)) {
+            throw new RuntimeException("Not found file with id = " + id);
+        }
+
+        final Map<String, Object> result = new HashMap<>();
+        final ToeicStorageEntity toeicStorageEntity = toeicStorageRepository.findById(id).get();
+
+        if (toeicStorageEntity.getFileName().lastIndexOf('.') < 0)
+            result.put("fileName", toeicStorageEntity.getFileName() + ".bin");
+        else
+            result.put("fileName", toeicStorageEntity.getFileName());
+
+        final File refFile = new File(this.appConfiguration.getToeicStoreDirectory(), toeicStorageEntity.getFileName());
+
+        try {
+            final byte[] stream = new FileInputStream(refFile).readAllBytes();
+            result.put("stream", stream);
+        }
+        catch (IOException ignored) {
+            throw new RuntimeException("Read file error!");
+        }
+
+        return result;
     }
 
     @Override
