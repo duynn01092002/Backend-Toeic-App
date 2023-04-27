@@ -2,6 +2,7 @@ package com.hcmute.backendtoeicapp.controllers;
 
 import com.hcmute.backendtoeicapp.base.BaseResponse;
 import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.CreateToeicVocabTopicRequest;
+import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.UpdateToeicVocabTopicRequest;
 import com.hcmute.backendtoeicapp.services.ToeicSystemVocabularyServiceImpl;
 import com.hcmute.backendtoeicapp.services.interfaces.ToeicSystemVocabularyService;
 import jakarta.annotation.Nonnull;
@@ -34,5 +35,24 @@ public class ToeicSystemVocabularyController {
     @GetMapping("topic")
     public BaseResponse listAllTopics() {
         return this.toeicSystemVocabularyService.listAllTopics();
+    }
+
+    @PutMapping("topic/{id}")
+    public BaseResponse updateTopic(
+            @PathVariable("id") Integer topicId,
+            @RequestParam(value = "topicName") String topicName,
+            @RequestParam(value = "image", required = false) MultipartFile uploadedTopicImage
+    ) {
+        UpdateToeicVocabTopicRequest request = new UpdateToeicVocabTopicRequest(
+                topicId, topicName, uploadedTopicImage
+        );
+        return this.toeicSystemVocabularyService.updateTopic(request);
+    }
+
+    @DeleteMapping("topic/{id}")
+    public BaseResponse deleteTopic(
+            @PathVariable("id") Integer topicId
+    ) {
+        return this.toeicSystemVocabularyService.deleteTopicById(topicId);
     }
 }

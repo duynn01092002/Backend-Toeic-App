@@ -115,7 +115,7 @@ public class ToeicSystemVocabularyServiceImpl implements ToeicSystemVocabularySe
 
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Cập nhật chủ đề thành công");
-        response.setData(entity);
+        response.setData(new ToeicVocabTopicResponse(entity));
 
         return response;
     }
