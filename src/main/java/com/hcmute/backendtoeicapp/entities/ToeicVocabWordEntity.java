@@ -27,6 +27,10 @@ public class ToeicVocabWordEntity {
     @Column(columnDefinition = "TEXT")
     private String exampleVietnamese;
 
+    @ManyToOne
+    @JoinColumn
+    private ToeicVocabTopicEntity topic;
+
     public ToeicVocabWordEntity() {
 
     }
