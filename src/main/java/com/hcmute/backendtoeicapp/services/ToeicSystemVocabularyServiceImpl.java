@@ -99,6 +99,15 @@ public class ToeicSystemVocabularyServiceImpl implements ToeicSystemVocabularySe
     }
 
     @Override
+    public BaseResponse listAllWordsByTopicId(Integer topicId) {
+        final List<ToeicVocabWordEntity> toeicVocabWordEntities = this.toeicVocabWordRepository.getAllWordsByTopicId(topicId);
+
+        SuccessfulResponse response = new SuccessfulResponse();
+        response.setMessage("Lấy dữ liệu thành công");
+        return response;
+    }
+
+    @Override
     public BaseResponse updateTopic(UpdateToeicVocabTopicRequest request) {
         final Optional<ToeicVocabTopicEntity> refEntity = this.toeicVocabTopicRepository.findById(request.getTopicId());
 
@@ -222,6 +231,8 @@ public class ToeicSystemVocabularyServiceImpl implements ToeicSystemVocabularySe
                     wordEntity.setWordImage(wordImageStorageEntity);
                 }
 
+                wordEntity.setTopic(topicEntity);
+
                 this.toeicVocabWordRepository.save(wordEntity);
 
                 for (ToeicVocabAudioBackupModel audioModel : wordModel.getAudio()) {
@@ -235,6 +246,8 @@ public class ToeicSystemVocabularyServiceImpl implements ToeicSystemVocabularySe
                             );
 
                     audioEntity.setAudioStorage(audioStorageEntity);
+
+                    audioEntity.setWord(wordEntity);
 
                     this.toeicVocabWordAudioRepository.save(audioEntity);
                 }
