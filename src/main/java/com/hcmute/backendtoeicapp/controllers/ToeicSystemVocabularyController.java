@@ -7,11 +7,12 @@ import com.hcmute.backendtoeicapp.services.ToeicSystemVocabularyServiceImpl;
 import com.hcmute.backendtoeicapp.services.interfaces.ToeicSystemVocabularyService;
 import jakarta.annotation.Nonnull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/api/toeic/toeic-system-vocabulary")
+    @RequestMapping("/api/toeic/toeic-system-vocabulary")
 @CrossOrigin("*")
 public class ToeicSystemVocabularyController {
     @Autowired
@@ -54,5 +55,13 @@ public class ToeicSystemVocabularyController {
             @PathVariable("id") Integer topicId
     ) {
         return this.toeicSystemVocabularyService.deleteTopicById(topicId);
+    }
+
+    @PostMapping("restore-full-database")
+    @Transactional
+    public BaseResponse restoreFullVocabDatabase(
+            @RequestParam(value = "file") MultipartFile uploadedBackupFile
+    ) {
+        return this.toeicSystemVocabularyService.restoreToeicBackupZipFile(uploadedBackupFile);
     }
 }

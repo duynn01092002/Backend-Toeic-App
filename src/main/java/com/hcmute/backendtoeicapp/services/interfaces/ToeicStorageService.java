@@ -18,6 +18,11 @@ public interface ToeicStorageService {
             @Nonnull MultipartFile uploadedFile
     ) throws IOException;
 
+    ToeicStorageEntity saveByteArrayAndReturnEntity(
+            @Nonnull String ext,
+            @Nonnull byte[] stream
+    ) throws IOException;
+
     Map<String, Object> getFileNameAndStream(Integer id);
 
     BaseResponse save(MultipartFile file);

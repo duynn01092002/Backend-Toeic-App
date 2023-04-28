@@ -54,6 +54,17 @@ public class ToeicStorageServiceImpl implements ToeicStorageService {
     }
 
     @Override
+    public ToeicStorageEntity saveByteArrayAndReturnEntity(String ext, byte[] stream) throws IOException {
+        String fileName = randomFileName(ext);
+        Path root = Paths.get(this.appConfiguration.getToeicStoreDirectory());
+        Files.copy(new ByteArrayInputStream(stream), root.resolve(fileName));
+        ToeicStorageEntity toeicStorageEntity = new ToeicStorageEntity();
+        toeicStorageEntity.setFileName(fileName);
+        this.toeicStorageRepository.save(toeicStorageEntity);
+        return toeicStorageEntity;
+    }
+
+    @Override
     public Map<String, Object> getFileNameAndStream(Integer id) {
         if (!this.toeicStorageRepository.existsById(id)) {
             throw new RuntimeException("Not found file with id = " + id);
