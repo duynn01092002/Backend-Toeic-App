@@ -8,6 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 public interface ToeicSystemVocabularyService {
     BaseResponse createTopic(CreateToeicVocabTopicRequest request);
     BaseResponse listAllTopics();
+    BaseResponse listAllWordsByTopicId(Integer topicId);
+    BaseResponse getWordDetail(Integer wordId);
     BaseResponse updateTopic(UpdateToeicVocabTopicRequest request);
     BaseResponse deleteTopicById(Integer topicId);
 

@@ -33,6 +33,20 @@ public class ToeicSystemVocabularyController {
         return this.toeicSystemVocabularyService.createTopic(request);
     }
 
+    @GetMapping("topic/{id}")
+    public BaseResponse listAllWordsByTopicId(
+            @PathVariable("id") Integer topicId
+    ) {
+        return this.toeicSystemVocabularyService.listAllWordsByTopicId(topicId);
+    }
+
+    @GetMapping("word/{id}")
+    public BaseResponse getWordDetailByWordId(
+            @PathVariable("id") Integer wordId
+    ) {
+        return this.toeicSystemVocabularyService.getWordDetail(wordId);
+    }
+
     @GetMapping("topic")
     public BaseResponse listAllTopics() {
         return this.toeicSystemVocabularyService.listAllTopics();

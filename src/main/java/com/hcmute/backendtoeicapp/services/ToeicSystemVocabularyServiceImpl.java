@@ -6,6 +6,7 @@ import com.hcmute.backendtoeicapp.base.BaseResponse;
 import com.hcmute.backendtoeicapp.base.SuccessfulResponse;
 import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.CreateToeicVocabTopicRequest;
 import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.ToeicVocabTopicResponse;
+import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.ToeicVocabWordResponse;
 import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.UpdateToeicVocabTopicRequest;
 import com.hcmute.backendtoeicapp.entities.ToeicStorageEntity;
 import com.hcmute.backendtoeicapp.entities.ToeicVocabTopicEntity;
@@ -100,10 +101,38 @@ public class ToeicSystemVocabularyServiceImpl implements ToeicSystemVocabularySe
 
     @Override
     public BaseResponse listAllWordsByTopicId(Integer topicId) {
+        if (!this.toeicVocabTopicRepository.existsById(topicId))
+            throw new RuntimeException("Not found topic with id = " + topicId);
+
         final List<ToeicVocabWordEntity> toeicVocabWordEntities = this.toeicVocabWordRepository.getAllWordsByTopicId(topicId);
+        final List<ToeicVocabWordResponse> toeicVocabWordResponses = toeicVocabWordEntities
+                .stream()
+                .map(ToeicVocabWordResponse::new)
+                .toList();
 
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Lấy dữ liệu thành công");
+        response.setData(toeicVocabWordResponses);
+        return response;
+    }
+
+    @Override
+    public BaseResponse getWordDetail(Integer wordId) {
+        if (!this.toeicVocabWordRepository.existsById(wordId))
+            throw new RuntimeException("Not found word with id = " + wordId);
+
+        ToeicVocabWordEntity entity = this.toeicVocabWordRepository.findById(wordId).get();
+        List<ToeicVocabWordAudioEntity> audioEntityList = this.toeicVocabWordAudioRepository.getListAudioByWordId(wordId);
+
+        ToeicVocabWordResponse toeicVocabWordResponse = new ToeicVocabWordResponse(
+                entity,
+                audioEntityList
+        );
+
+        SuccessfulResponse response = new SuccessfulResponse();
+        response.setMessage("Lấy dữ liệu thành công");
+        response.setData(toeicVocabWordResponse);
+
         return response;
     }
 
