@@ -9,11 +9,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ToeicVocabWordAudioResponse {
+    private Integer audioId;
+
     private String voice;
 
     private String url;
 
     public ToeicVocabWordAudioResponse(ToeicVocabWordAudioEntity entity) {
+        this.setAudioId(entity.getId());
         this.setVoice(entity.getVoice());
         this.setUrl("/api/toeic/toeic-storage/view/" + entity.getAudioStorage().getId());
     }

@@ -17,6 +17,7 @@ public interface ToeicSystemVocabularyService {
     BaseResponse updateTopic(UpdateToeicVocabTopicRequest request);
 
     BaseResponse deleteTopicById(Integer topicId);
+    BaseResponse deleteWordAudioById(Integer audioId);
 
     BaseResponse restoreToeicBackupZipFile(MultipartFile uploadedBackupFile);
 }

@@ -229,6 +229,24 @@ public class ToeicSystemVocabularyServiceImpl implements ToeicSystemVocabularySe
         return response;
     }
 
+    @Override
+    public BaseResponse deleteWordAudioById(Integer audioId) {
+        final Optional<ToeicVocabWordAudioEntity> optionalToeicVocabWordAudioEntity =
+                this.toeicVocabWordAudioRepository.findById(audioId);
+
+        if (optionalToeicVocabWordAudioEntity.isEmpty()) {
+            throw new RuntimeException("Cannot find word audio with id = " + audioId);
+        }
+
+        //TODO: delete storage
+
+        this.toeicVocabWordAudioRepository.delete(optionalToeicVocabWordAudioEntity.get());
+
+        SuccessfulResponse response = new SuccessfulResponse();
+        response.setMessage("Deleted word audio successfully");
+        return response;
+    }
+
     private void restoreBackupFile(
             final InputStream inputStream
     ) throws IOException {

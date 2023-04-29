@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.image.BaseMultiResolutionImage;
+
 @RestController
     @RequestMapping("/api/toeic/toeic-system-vocabulary")
 @CrossOrigin("*")
@@ -83,6 +85,13 @@ public class ToeicSystemVocabularyController {
         request.setUploadedAudio(uploadedAudioFile);
         request.setVoice(voice);
         return this.toeicSystemVocabularyService.addWordAudio(request);
+    }
+
+    @DeleteMapping("audio/{id}")
+    public BaseResponse deleteWordAudioById(
+            @PathVariable("id") Integer audioId
+    ) {
+        return this.toeicSystemVocabularyService.deleteWordAudioById(audioId);
     }
 
     @PostMapping("restore-full-database")
