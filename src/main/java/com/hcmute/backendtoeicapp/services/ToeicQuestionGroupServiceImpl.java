@@ -9,14 +9,12 @@ import com.hcmute.backendtoeicapp.dto.toeicQuestion.ToeicQuestionResponse;
 import com.hcmute.backendtoeicapp.dto.toeicQuestionGroup.CreateToeicQuestionGroupRequest;
 import com.hcmute.backendtoeicapp.dto.toeicQuestionGroup.ToeicQuestionGroupResponse;
 import com.hcmute.backendtoeicapp.dto.toeicQuestionGroup.UpdateToeicQuestionGroupRequest;
+import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.ToeicVocabWordResponse;
 import com.hcmute.backendtoeicapp.entities.ToeicItemContentEntity;
 import com.hcmute.backendtoeicapp.entities.ToeicPartEntity;
 import com.hcmute.backendtoeicapp.entities.ToeicQuestionEntity;
 import com.hcmute.backendtoeicapp.entities.ToeicQuestionGroupEntity;
-import com.hcmute.backendtoeicapp.repositories.ToeicItemContentRepository;
-import com.hcmute.backendtoeicapp.repositories.ToeicPartRepository;
-import com.hcmute.backendtoeicapp.repositories.ToeicQuestionGroupRepository;
-import com.hcmute.backendtoeicapp.repositories.ToeicQuestionRepository;
+import com.hcmute.backendtoeicapp.repositories.*;
 import com.hcmute.backendtoeicapp.services.interfaces.ToeicItemContentService;
 import com.hcmute.backendtoeicapp.services.interfaces.ToeicQuestionGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +36,9 @@ public class ToeicQuestionGroupServiceImpl implements ToeicQuestionGroupService 
 
     @Autowired
     private ToeicItemContentRepository toeicItemContentRepository;
+
+    @Autowired
+    private ToeicAnswerChoiceRepository toeicAnswerChoiceRepository;
 
     @Override
     public BaseResponse createToeicQuestionGroup(CreateToeicQuestionGroupRequest request) {
@@ -78,8 +79,7 @@ public class ToeicQuestionGroupServiceImpl implements ToeicQuestionGroupService 
             return  response;
         }
 
-        final ToeicQuestionGroupEntity temp = this.toeicQuestionGroupRepository.getById(id);
-        final ToeicQuestionGroupResponse result = this.getToeicQuestionGroupByIdInner(temp.getId());
+        final ToeicQuestionGroupResponse result = this.getToeicQuestionGroupByIdInner(id);
 
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Lấy dữ liệu thành công");
@@ -97,7 +97,10 @@ public class ToeicQuestionGroupServiceImpl implements ToeicQuestionGroupService 
                 this.toeicQuestionRepository.getToeicQuestionEntitiesByToeicQuestionGroup(groupId);
         final List<ToeicQuestionResponse> questionResponses =
                 questionEntities.stream()
-                .map(ToeicQuestionResponse::new)
+                .map(question -> new ToeicQuestionResponse(
+                        question,
+                        this.toeicAnswerChoiceRepository.getListChoicesByQuestionId(question.getId())
+                ))
                 .toList();
 
         final List<ToeicItemContentEntity> questionContentEntities =
@@ -108,9 +111,9 @@ public class ToeicQuestionGroupServiceImpl implements ToeicQuestionGroupService 
                 .toList();
 
         final List<ToeicItemContentEntity> transcriptContentEntities =
-                this.toeicItemContentRepository.getListQuestionContentByQuestionGroupId(groupId);
+                this.toeicItemContentRepository.getListTranscriptByQuestionGroupId(groupId);
         final List<ToeicItemContentResponse> transcriptContentResponses =
-                questionContentEntities.stream()
+                transcriptContentEntities.stream()
                         .map(ToeicItemContentResponse::new)
                         .toList();
 
