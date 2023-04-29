@@ -4,10 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hcmute.backendtoeicapp.base.BaseResponse;
 import com.hcmute.backendtoeicapp.base.SuccessfulResponse;
-import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.CreateToeicVocabTopicRequest;
-import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.ToeicVocabTopicResponse;
-import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.ToeicVocabWordResponse;
-import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.UpdateToeicVocabTopicRequest;
+import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.*;
 import com.hcmute.backendtoeicapp.entities.ToeicStorageEntity;
 import com.hcmute.backendtoeicapp.entities.ToeicVocabTopicEntity;
 import com.hcmute.backendtoeicapp.entities.ToeicVocabWordAudioEntity;
@@ -84,6 +81,44 @@ public class ToeicSystemVocabularyServiceImpl implements ToeicSystemVocabularySe
     }
 
     @Override
+    public BaseResponse addWordAudio(AddWordAudioRequest request) {
+        Optional<ToeicVocabWordEntity> optionalToeicVocabWordEntity =
+                this.toeicVocabWordRepository.findById(request.getWordId());
+
+        if (optionalToeicVocabWordEntity.isEmpty()) {
+            throw new RuntimeException("Cannot find word with id = " + request.getWordId());
+        }
+
+        if (request.getVoice() == null || request.getVoice().length() == 0) {
+            throw new RuntimeException("Voice cannot be null");
+        }
+
+        ToeicStorageEntity audioStorage = null;
+
+        try {
+            audioStorage = this.toeicStorageService.saveByteArrayAndReturnEntity(
+                    request.getUploadedAudio().getOriginalFilename(),
+                    request.getUploadedAudio().getBytes()
+            );
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot read or save audio file");
+        }
+
+        assert audioStorage != null;
+
+        ToeicVocabWordAudioEntity toeicVocabWordAudioEntity = new ToeicVocabWordAudioEntity();
+        toeicVocabWordAudioEntity.setWord(optionalToeicVocabWordEntity.get());
+        toeicVocabWordAudioEntity.setVoice(request.getVoice());
+        toeicVocabWordAudioEntity.setAudioStorage(audioStorage);
+
+        this.toeicVocabWordAudioRepository.save(toeicVocabWordAudioEntity);
+
+        SuccessfulResponse response = new SuccessfulResponse();
+        response.setMessage("Added audio successfully");
+        return response;
+    }
+
+    @Override
     public BaseResponse listAllTopics() {
         final List<ToeicVocabTopicEntity> toeicVocabTopicEntities = this.toeicVocabTopicRepository.findAll();
 
@@ -104,15 +139,21 @@ public class ToeicSystemVocabularyServiceImpl implements ToeicSystemVocabularySe
         if (!this.toeicVocabTopicRepository.existsById(topicId))
             throw new RuntimeException("Not found topic with id = " + topicId);
 
+        final ToeicVocabTopicEntity topicEntity = this.toeicVocabTopicRepository.findById(topicId).get();
         final List<ToeicVocabWordEntity> toeicVocabWordEntities = this.toeicVocabWordRepository.getAllWordsByTopicId(topicId);
         final List<ToeicVocabWordResponse> toeicVocabWordResponses = toeicVocabWordEntities
                 .stream()
                 .map(ToeicVocabWordResponse::new)
                 .toList();
 
+        Map<String, Object> responseObject = new HashMap<>();
+
+        responseObject.put("topic", new ToeicVocabTopicResponse(topicEntity));
+        responseObject.put("wordList", toeicVocabWordResponses);
+
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Lấy dữ liệu thành công");
-        response.setData(toeicVocabWordResponses);
+        response.setData(responseObject);
         return response;
     }
 
@@ -218,6 +259,8 @@ public class ToeicSystemVocabularyServiceImpl implements ToeicSystemVocabularySe
             throw new RuntimeException("Not found config.json");
         }
 
+        this.toeicVocabWordAudioRepository.deleteAll();
+        this.toeicVocabWordRepository.deleteAll();
         this.toeicVocabTopicRepository.deleteAll();
 
         for (ToeicVocabTopicBackupModel topicModel : topics) {

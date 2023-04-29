@@ -1,6 +1,7 @@
 package com.hcmute.backendtoeicapp.controllers;
 
 import com.hcmute.backendtoeicapp.base.BaseResponse;
+import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.AddWordAudioRequest;
 import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.CreateToeicVocabTopicRequest;
 import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.UpdateToeicVocabTopicRequest;
 import com.hcmute.backendtoeicapp.services.ToeicSystemVocabularyServiceImpl;
@@ -33,20 +34,6 @@ public class ToeicSystemVocabularyController {
         return this.toeicSystemVocabularyService.createTopic(request);
     }
 
-    @GetMapping("topic/{id}")
-    public BaseResponse listAllWordsByTopicId(
-            @PathVariable("id") Integer topicId
-    ) {
-        return this.toeicSystemVocabularyService.listAllWordsByTopicId(topicId);
-    }
-
-    @GetMapping("word/{id}")
-    public BaseResponse getWordDetailByWordId(
-            @PathVariable("id") Integer wordId
-    ) {
-        return this.toeicSystemVocabularyService.getWordDetail(wordId);
-    }
-
     @GetMapping("topic")
     public BaseResponse listAllTopics() {
         return this.toeicSystemVocabularyService.listAllTopics();
@@ -69,6 +56,33 @@ public class ToeicSystemVocabularyController {
             @PathVariable("id") Integer topicId
     ) {
         return this.toeicSystemVocabularyService.deleteTopicById(topicId);
+    }
+
+    @GetMapping("word/list-by-topic/{id}")
+    public BaseResponse listAllWordsByTopicId(
+            @PathVariable("id") Integer topicId
+    ) {
+        return this.toeicSystemVocabularyService.listAllWordsByTopicId(topicId);
+    }
+
+    @GetMapping("word/{id}")
+    public BaseResponse getWordDetailByWordId(
+            @PathVariable("id") Integer wordId
+    ) {
+        return this.toeicSystemVocabularyService.getWordDetail(wordId);
+    }
+
+    @PostMapping("word/{id}/add-audio")
+    public BaseResponse addWordAudio(
+            @PathVariable("id") Integer wordId,
+            @RequestParam("file") MultipartFile uploadedAudioFile,
+            @RequestParam("voice") String voice
+    ) {
+        AddWordAudioRequest request = new AddWordAudioRequest();
+        request.setWordId(wordId);
+        request.setUploadedAudio(uploadedAudioFile);
+        request.setVoice(voice);
+        return this.toeicSystemVocabularyService.addWordAudio(request);
     }
 
     @PostMapping("restore-full-database")
