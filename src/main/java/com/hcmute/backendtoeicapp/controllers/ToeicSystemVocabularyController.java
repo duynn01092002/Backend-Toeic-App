@@ -4,6 +4,7 @@ import com.hcmute.backendtoeicapp.base.BaseResponse;
 import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.AddWordAudioRequest;
 import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.CreateToeicVocabTopicRequest;
 import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.UpdateToeicVocabTopicRequest;
+import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.UpdateWordInformationRequest;
 import com.hcmute.backendtoeicapp.services.ToeicSystemVocabularyServiceImpl;
 import com.hcmute.backendtoeicapp.services.interfaces.ToeicSystemVocabularyService;
 import jakarta.annotation.Nonnull;
@@ -15,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.awt.image.BaseMultiResolutionImage;
 
 @RestController
-    @RequestMapping("/api/toeic/toeic-system-vocabulary")
+@RequestMapping("/api/toeic/toeic-system-vocabulary")
 @CrossOrigin("*")
 public class ToeicSystemVocabularyController {
     @Autowired
@@ -85,6 +86,15 @@ public class ToeicSystemVocabularyController {
         request.setUploadedAudio(uploadedAudioFile);
         request.setVoice(voice);
         return this.toeicSystemVocabularyService.addWordAudio(request);
+    }
+
+    @PutMapping("word/{id}")
+    public BaseResponse updateWordInformation(
+            @PathVariable("id") Integer wordId,
+            @RequestBody UpdateWordInformationRequest request
+    ) {
+        request.setWordId(wordId);
+        return this.toeicSystemVocabularyService.updateWordInformation(request);
     }
 
     @DeleteMapping("audio/{id}")

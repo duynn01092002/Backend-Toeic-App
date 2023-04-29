@@ -215,6 +215,29 @@ public class ToeicSystemVocabularyServiceImpl implements ToeicSystemVocabularySe
     }
 
     @Override
+    public BaseResponse updateWordInformation(UpdateWordInformationRequest request) {
+        Optional<ToeicVocabWordEntity> optionalToeicVocabWordEntity =
+                this.toeicVocabWordRepository.findById(request.getWordId());
+
+        if (optionalToeicVocabWordEntity.isEmpty()) {
+            throw new RuntimeException("Cannot find word with wordId = " + request.getWordId());
+        }
+
+        final ToeicVocabWordEntity toeicVocabWordEntity = optionalToeicVocabWordEntity.get();
+        toeicVocabWordEntity.setEnglish(request.getEnglish());
+        toeicVocabWordEntity.setVietnamese(request.getVietnamese());
+        toeicVocabWordEntity.setPronounce(request.getPronounce());
+        toeicVocabWordEntity.setExampleEnglish(request.getExampleEnglish());
+        toeicVocabWordEntity.setExampleVietnamese(request.getExampleVietnamese());
+
+        this.toeicVocabWordRepository.save(toeicVocabWordEntity);
+
+        SuccessfulResponse response = new SuccessfulResponse();
+        response.setMessage("Updated word information successfully");
+        return response;
+    }
+
+    @Override
     public BaseResponse deleteTopicById(Integer topicId) {
         final Optional<ToeicVocabTopicEntity> refEntity = this.toeicVocabTopicRepository.findById(topicId);
 
