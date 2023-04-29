@@ -1,10 +1,7 @@
 package com.hcmute.backendtoeicapp.controllers;
 
 import com.hcmute.backendtoeicapp.base.BaseResponse;
-import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.AddWordAudioRequest;
-import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.CreateToeicVocabTopicRequest;
-import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.UpdateToeicVocabTopicRequest;
-import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.UpdateWordInformationRequest;
+import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.*;
 import com.hcmute.backendtoeicapp.services.ToeicSystemVocabularyServiceImpl;
 import com.hcmute.backendtoeicapp.services.interfaces.ToeicSystemVocabularyService;
 import jakarta.annotation.Nonnull;
@@ -59,6 +56,13 @@ public class ToeicSystemVocabularyController {
             @PathVariable("id") Integer topicId
     ) {
         return this.toeicSystemVocabularyService.deleteTopicById(topicId);
+    }
+
+    @PostMapping("word")
+    public BaseResponse createWord(
+            @RequestBody CreateToeicWordRequest request
+    ) {
+        return this.toeicSystemVocabularyService.createWord(request);
     }
 
     @GetMapping("word/list-by-topic/{id}")

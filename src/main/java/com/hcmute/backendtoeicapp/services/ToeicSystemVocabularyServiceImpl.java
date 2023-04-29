@@ -51,6 +51,32 @@ public class ToeicSystemVocabularyServiceImpl implements ToeicSystemVocabularySe
     }
 
     @Override
+    public BaseResponse createWord(CreateToeicWordRequest request) {
+        Optional<ToeicVocabTopicEntity> optionalToeicVocabTopicEntity =
+                this.toeicVocabTopicRepository.findById(request.getTopicId());
+
+        if (optionalToeicVocabTopicEntity.isEmpty()) {
+            throw new RuntimeException("Cannot find topic with id = " + request.getTopicId());
+        }
+
+        ToeicVocabWordEntity entity = new ToeicVocabWordEntity();
+
+        entity.setEnglish(request.getEnglish());
+        entity.setVietnamese(request.getVietnamese());
+        entity.setPronounce(request.getPronounce());
+        entity.setExampleVietnamese(request.getExampleVietnamese());
+        entity.setExampleEnglish(request.getExampleEnglish());
+        entity.setTopic(optionalToeicVocabTopicEntity.get());
+
+        this.toeicVocabWordRepository.save(entity);
+
+        SuccessfulResponse response = new SuccessfulResponse();
+        response.setMessage("Created word successfully");
+        response.setData(new ToeicVocabWordResponse(entity));
+        return response;
+    }
+
+    @Override
     public BaseResponse createTopic(CreateToeicVocabTopicRequest request) {
         if (request.getTopicName() == null || request.getTopicName().length() == 0) {
             throw new RuntimeException("Tên chủ đề không được trống");
