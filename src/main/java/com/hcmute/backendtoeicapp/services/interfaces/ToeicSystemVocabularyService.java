@@ -18,6 +18,7 @@ public interface ToeicSystemVocabularyService {
 
     BaseResponse deleteTopicById(Integer topicId);
     BaseResponse deleteWordAudioById(Integer audioId);
+    BaseResponse deleteWordById(Integer wordId);
 
     BaseResponse restoreToeicBackupZipFile(MultipartFile uploadedBackupFile);
 }

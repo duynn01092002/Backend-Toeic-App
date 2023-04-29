@@ -101,6 +101,14 @@ public class ToeicSystemVocabularyController {
         return this.toeicSystemVocabularyService.updateWordInformation(request);
     }
 
+    @DeleteMapping("word/{id}")
+    @Transactional
+    public BaseResponse deleteWordById(
+            @PathVariable("id") Integer wordId
+    ) {
+        return this.toeicSystemVocabularyService.deleteWordById(wordId);
+    }
+
     @DeleteMapping("audio/{id}")
     public BaseResponse deleteWordAudioById(
             @PathVariable("id") Integer audioId
