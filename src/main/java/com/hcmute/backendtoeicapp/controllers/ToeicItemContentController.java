@@ -1,11 +1,13 @@
 package com.hcmute.backendtoeicapp.controllers;
 
 import com.hcmute.backendtoeicapp.base.BaseResponse;
+import com.hcmute.backendtoeicapp.dto.toeicItemContent.CreateNewItemContentRequest;
 import com.hcmute.backendtoeicapp.dto.toeicItemContent.CreateToeicItemContentRequest;
 import com.hcmute.backendtoeicapp.dto.toeicItemContent.UpdateToeicItemContentRequest;
 import com.hcmute.backendtoeicapp.services.interfaces.ToeicItemContentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @CrossOrigin("*")
@@ -62,6 +64,23 @@ public class ToeicItemContentController {
     public BaseResponse deleteToeicItemContent(
             @PathVariable Integer id) {
         BaseResponse response = this.toeicItemContentService.deleteToeicItemContent(id);
+        return response;
+    }
+
+    @PostMapping("create-new-item-content")
+    public BaseResponse createNewItemContent(
+            @RequestParam("contentType") String contentType,
+            @RequestParam("stringContent") String stringContent,
+            @RequestParam("content") MultipartFile content,
+            @RequestParam("questionContentId") Integer questionContentId,
+            @RequestParam("questionTranscriptId") Integer questionTranscriptId) throws Exception {
+        CreateNewItemContentRequest request = new CreateNewItemContentRequest();
+        request.setContent(content);
+        request.setContentType(contentType);
+        request.setStringContent(stringContent);
+        request.setQuestionContentId(questionContentId);
+        request.setQuestionTranscriptId(questionTranscriptId);
+        BaseResponse response = this.toeicItemContentService.createNewItemContent(request);
         return response;
     }
 }
