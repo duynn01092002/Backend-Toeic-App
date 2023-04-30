@@ -1,10 +1,12 @@
 package com.hcmute.backendtoeicapp.controllers;
 
 import com.hcmute.backendtoeicapp.base.BaseResponse;
+import com.hcmute.backendtoeicapp.dto.toeicNewQuestion.CreateNewQuestionRequest;
 import com.hcmute.backendtoeicapp.dto.toeicQuestion.CreateToeicQuestionRequest;
 import com.hcmute.backendtoeicapp.dto.toeicQuestion.UpdateToeicQuestionRequest;
 import com.hcmute.backendtoeicapp.services.interfaces.ToeicQuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -54,6 +56,13 @@ public class ToeicQuestionController {
     public BaseResponse deleteToeicQuestion(
             @PathVariable Integer id) {
         BaseResponse response = this.toeicQuestionService.deleteToeicQuestion(id);
+        return response;
+    }
+
+    @PostMapping("create-new-question")
+    @Transactional
+    public BaseResponse createNewQuestion(@RequestBody CreateNewQuestionRequest request) {
+        BaseResponse response = this.toeicQuestionService.createNewQuestion(request);
         return response;
     }
 }

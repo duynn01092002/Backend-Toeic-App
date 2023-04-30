@@ -18,4 +18,8 @@ public interface ToeicQuestionRepository extends JpaRepository<ToeicQuestionEnti
     List<ToeicQuestionEntity> getToeicQuestionEntitiesByToeicQuestionGroup(
             @Param("groupId") Integer groupId
     );
+
+    @Query("SELECT CASE WHEN COUNT(u) > 0 THEN TRUE ELSE FALSE END FROM ToeicQuestionEntity u WHERE " +
+            "u.toeicQuestionGroupEntity.toeicPartEntity.toeicFullTestEntity.id=:id")
+    boolean existsByTestId(@Param("id") Integer id);
 }
