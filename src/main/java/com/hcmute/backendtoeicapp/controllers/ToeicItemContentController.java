@@ -70,13 +70,13 @@ public class ToeicItemContentController {
     @PostMapping("create-new-item-content")
     public BaseResponse createNewItemContent(
             @RequestParam("contentType") String contentType,
-            @RequestParam("stringContent") String stringContent,
-            @RequestParam("content") MultipartFile content,
-            @RequestParam("questionContentId") Integer questionContentId,
-            @RequestParam("questionTranscriptId") Integer questionTranscriptId) throws Exception {
+            @RequestParam(value="stringContent",required = false) String stringContent,
+            @RequestParam(value = "content",required = false) MultipartFile content,
+            @RequestParam(value="questionContentId",required = false) Integer questionContentId,
+            @RequestParam(value = "questionTranscriptId",required = false) Integer questionTranscriptId) throws Exception {
         CreateNewItemContentRequest request = new CreateNewItemContentRequest();
-        request.setContent(content);
         request.setContentType(contentType);
+        request.setContent(content);
         request.setStringContent(stringContent);
         request.setQuestionContentId(questionContentId);
         request.setQuestionTranscriptId(questionTranscriptId);
