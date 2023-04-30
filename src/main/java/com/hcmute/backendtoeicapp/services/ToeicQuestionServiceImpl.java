@@ -152,6 +152,16 @@ public class ToeicQuestionServiceImpl implements ToeicQuestionService {
             response.setMessage("Không tồn tại toeic question group với id = " + request.getToeicQuestionGroupId());
             return response;
         }
+        if (request.getQuestionNumber() > 200 || request.getQuestionNumber() <= 0) {
+            ErrorResponse response = new ErrorResponse();
+            response.setMessage("Question Number không hợp lệ");
+            return response;
+        }
+        if (this.toeicQuestionRepository.existsByQuestionNumberAndGroupId(request.getQuestionNumber())) {
+            ErrorResponse response = new ErrorResponse();
+            response.setMessage("Đã tồn tại câu hỏi số "+request.getQuestionNumber()+" trong group "+request.getToeicQuestionGroupId());
+            return response;
+        }
         if (request.getToeicAnswers().size() > 4 || request.getToeicAnswers().size() < 3) {
             ErrorResponse response = new ErrorResponse();
             response.setMessage("Danh sách đáp án không hợp lệ");
