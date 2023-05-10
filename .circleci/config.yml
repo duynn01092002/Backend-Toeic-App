@@ -22,24 +22,6 @@ jobs:
             cd Backend-Toeic-App
             mvn clean install -DskipTests
             ls ./target
-<<<<<<< Updated upstream
-      - persist_to_workspace:
-          root: ./Backend-Toeic-App
-  upload:
-    docker:
-      - image: cimg/base:2023.03
-    steps:
-      - install_java_package
-      - run:
-          name: "Build backend toeic app"
-          command: |
-            ls
-            pwd
-            cd Backend-Toeic-App
-            mvn clean install -DskipTests
-            ls ./target
-=======
->>>>>>> Stashed changes
             git config --global user.name "ngthvan1612"
             git config --global user.email "ngthvan1612@gmail.com"
             git clone https://ngthvan1612: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@github.com/duynn01092002/BackendToeicAppDeploy
@@ -48,11 +30,6 @@ jobs:
             git add .
             git commit -m "Deploy"
             git push
-<<<<<<< Updated upstream
-      - persist_to_workspace:
-          root: ./Backend-Toeic-App
-=======
->>>>>>> Stashed changes
 workflows:
   build_pipeline:
     jobs:
