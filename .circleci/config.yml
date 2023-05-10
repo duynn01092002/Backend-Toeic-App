@@ -22,8 +22,8 @@ jobs:
             cd Backend-Toeic-App
             mvn clean install -DskipTests
             ls ./target
-      - store_artifacts:
-          path: ./Backend-Toeic-App
+      - persist_to_workspace:
+          root: ./Backend-Toeic-App
   upload:
     docker:
       - image: cimg/base:2023.03
@@ -45,8 +45,8 @@ jobs:
             git add .
             git commit -m "Deploy"
             git push
-      - store_artifacts:
-          path: ./Backend-Toeic-App
+      - persist_to_workspace:
+          root: ./Backend-Toeic-App
 workflows:
   build_pipeline:
     jobs:
