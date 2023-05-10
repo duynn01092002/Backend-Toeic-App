@@ -23,6 +23,26 @@ jobs:
             cd Backend-Toeic-App
             mvn clean install -DskipTests
             ls ./target
+  upload:
+    docker:
+      - image: cimg/base:2023.03
+    steps:
+      - checkout
+      - install_java_package
+      - run:
+          name: "Build backend toeic app"
+          command: |
+            cd Backend-Toeic-App
+            mvn clean install -DskipTests
+            ls ./target
+            git config --global user.name "ngthvan1612"
+            git config --global user.email "ngthvan1612@gmail.com"
+            git clone https://ngthvan1612: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@github.com/duynn01092002/BackendToeicAppDeploy
+            mv ./target/Backend-Toeic-App-0.0.1-SNAPSHOT ./BackendToeicAppDeploy/Toeic.war
+            cd BackendToeicAppDeploy
+            git add .
+            git commit -m "Deploy"
+            git push
 workflows:
   build_pipeline:
     jobs:
