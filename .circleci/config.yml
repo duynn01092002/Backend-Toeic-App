@@ -47,3 +47,6 @@ workflows:
   build_pipeline:
     jobs:
       - build
+      - upload:
+          requires:
+            - build
