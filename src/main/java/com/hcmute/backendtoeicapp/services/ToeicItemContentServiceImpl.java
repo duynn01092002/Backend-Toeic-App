@@ -100,6 +100,7 @@ public class ToeicItemContentServiceImpl implements ToeicItemContentService {
         return response;
     }
 
+    @Deprecated
     @Override
     public BaseResponse createToeicItemContent(CreateToeicItemContentRequest request) throws Exception {
         List<String> contentTypes = getContentTypes();
