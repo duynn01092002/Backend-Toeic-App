@@ -27,7 +27,7 @@ jobs:
 workflows:
   build_pipeline:
     jobs:
-      - build
+      - build:
           filters:
             branches:
               only:
