@@ -24,7 +24,7 @@ jobs:
             ls ./target
             git config --global user.name "ngthvan1612"
             git config --global user.email "ngthvan1612@gmail.com"
-            git clone https://ngthvan1612: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@github.com/duynn01092002/BackendToeicAppDeploy
+            git clone https://duynn01092002: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@github.com/duynn01092002/BackendToeicAppDeploy
             mv ./target/Backend-Toeic-App-0.0.1-SNAPSHOT ./BackendToeicAppDeploy/Toeic.war
             cd BackendToeicAppDeploy
             git add .
