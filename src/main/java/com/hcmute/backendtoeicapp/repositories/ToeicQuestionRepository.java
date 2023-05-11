@@ -25,8 +25,9 @@ public interface ToeicQuestionRepository extends JpaRepository<ToeicQuestionEnti
 
     @Query("SELECT CASE WHEN COUNT(u) > 0 THEN TRUE ELSE FALSE END FROM ToeicQuestionEntity u " +
             "INNER JOIN ToeicQuestionGroupEntity v ON u.toeicQuestionGroupEntity.id=v.id WHERE " +
-            "u.questionNumber=:questionNumber")
-    boolean existsByQuestionNumberAndGroupId(@Param("questionNumber") Integer questionNumber);
+            "u.questionNumber=:questionNumber AND u.toeicQuestionGroupEntity.id=:questionGroupId")
+    boolean existsByQuestionNumberAndGroupId(@Param("questionNumber") Integer questionNumber,
+                                             @Param("questionGroupId") Integer questionGroupId);
 
     @Query("SELECT u FROM ToeicQuestionEntity u INNER JOIN ToeicAnswerChoiceEntity v " +
             "ON u.id=v.toeicQuestionEntity.id WHERE v.id=:id")

@@ -14,6 +14,7 @@ public interface ToeicItemContentService {
 
     BaseResponse getTranscriptContentsByGroupId(Integer groupId);
 
+    @Deprecated
     BaseResponse createToeicItemContent(CreateToeicItemContentRequest request) throws Exception;
 
     BaseResponse updateToeicItemContent(UpdateToeicItemContentRequest request) throws Exception;
