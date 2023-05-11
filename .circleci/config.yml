@@ -22,7 +22,7 @@ jobs:
             cd Backend-Toeic-App
             mvn clean install -DskipTests
             ls ./target
-            python ./deploy/ssh.py
+            python3 ./deploy/ssh.py
 workflows:
   build_pipeline:
     jobs:
