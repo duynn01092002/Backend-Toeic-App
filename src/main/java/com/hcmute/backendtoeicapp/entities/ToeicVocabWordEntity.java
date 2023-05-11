@@ -29,6 +29,10 @@ public class ToeicVocabWordEntity {
 
     @ManyToOne
     @JoinColumn
+    private ToeicStorageEntity audioStorage;
+
+    @ManyToOne
+    @JoinColumn
     private ToeicVocabTopicEntity topic;
 
     public ToeicVocabWordEntity() {
