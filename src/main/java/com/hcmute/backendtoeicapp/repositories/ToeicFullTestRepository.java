@@ -16,6 +16,9 @@ public interface ToeicFullTestRepository extends JpaRepository<ToeicFullTestEnti
 
     @Query("SELECT u FROM ToeicFullTestEntity u WHERE u.slug = :slug")
     ToeicFullTestEntity getToeicFullTestBySlug(
-            @Param("slug") String slug
-    );
+            @Param("slug") String slug);
+
+    @Query("SELECT u FROM ToeicFullTestEntity u INNER JOIN ToeicPartEntity v ON u.id=v.toeicFullTestEntity.id " +
+            "WHERE v.id=:id")
+    ToeicFullTestEntity getToeicFullTestEntityByToeicPartId(@Param("id") Integer id);
 }

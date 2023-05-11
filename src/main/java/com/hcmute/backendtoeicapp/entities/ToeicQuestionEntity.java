@@ -13,6 +13,8 @@ public class ToeicQuestionEntity {
     private Integer questionNumber;
     private String correctAnswer;
     private String content;
+    @Column(columnDefinition = "TEXT",name = "c_explain")
+    private String explain;
     @ManyToOne
     @JoinColumn(name="toeic_question_group_id")
     private ToeicQuestionGroupEntity toeicQuestionGroupEntity;

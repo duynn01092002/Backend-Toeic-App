@@ -40,6 +40,9 @@ public class ToeicQuestionGroupServiceImpl implements ToeicQuestionGroupService 
     @Autowired
     private ToeicAnswerChoiceRepository toeicAnswerChoiceRepository;
 
+    @Autowired
+    private SyncToeicTestService syncToeicTestService;
+
     @Override
     public BaseResponse createToeicQuestionGroup(CreateToeicQuestionGroupRequest request) {
         if (!this.toeicPartRepository.existsById(request.getToeicPartId())) {
@@ -53,7 +56,7 @@ public class ToeicQuestionGroupServiceImpl implements ToeicQuestionGroupService 
         toeicQuestionGroupEntity.setToeicPartEntity(toeicPartEntity);
 
         this.toeicQuestionGroupRepository.save(toeicQuestionGroupEntity);
-
+        this.syncToeicTestService.updateToeicQuestionGroupEntity(toeicQuestionGroupEntity);
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Tạo dữ liệu thành công");
         response.setData(toeicQuestionGroupEntity);
@@ -164,7 +167,7 @@ public class ToeicQuestionGroupServiceImpl implements ToeicQuestionGroupService 
         ToeicPartEntity toeicPartEntity = this.toeicPartRepository.getById(request.getToeicPartId());
         toeicQuestionGroupEntity.setToeicPartEntity(toeicPartEntity);
         this.toeicQuestionGroupRepository.save(toeicQuestionGroupEntity);
-
+        this.syncToeicTestService.updateToeicQuestionGroupEntity(toeicQuestionGroupEntity);
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Cập nhật dữ liệu thành công");
         response.setData(toeicQuestionGroupEntity);
