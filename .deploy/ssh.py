@@ -19,6 +19,14 @@ ftp.close()
 
 print(f'Upload Toeic.war ok')
 
+(_, stdout, stderr) = ssh.exec_command('cd BackendToeicAppDeploy; docker-compose down; docker-compose up -d;')
+exit_status = stdout.channel.recv_exit_status()
+
+print('\n'.join(stdout.readlines()))
+
+ftp.close()
+ssh.close()
+
 ssh.close()
 
 print(f'Close connection {SSH_IP} OK')
