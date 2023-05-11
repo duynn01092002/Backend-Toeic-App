@@ -6,11 +6,19 @@ import com.hcmute.backendtoeicapp.services.ToeicSystemVocabularyServiceImpl;
 import com.hcmute.backendtoeicapp.services.interfaces.ToeicSystemVocabularyService;
 import jakarta.annotation.Nonnull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.InputStreamSource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.image.BaseMultiResolutionImage;
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/toeic/toeic-system-vocabulary")
@@ -116,6 +124,18 @@ public class ToeicSystemVocabularyController {
         return this.toeicSystemVocabularyService.deleteWordAudioById(audioId);
     }
 
+    @GetMapping("download-backup")
+    public ResponseEntity downloadBackup() throws IOException {
+        final byte[] stream = this.toeicSystemVocabularyService.downloadBackupZip();
+        InputStreamSource streamSource = new InputStreamResource(new ByteArrayInputStream(stream));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=dataset.zip")
+                .contentLength(stream.length)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(streamSource);
+    }
+
+    @Deprecated
     @PostMapping("restore-full-database")
     @Transactional
     public BaseResponse restoreFullVocabDatabase(
