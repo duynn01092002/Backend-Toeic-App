@@ -23,6 +23,9 @@ public class ToeicAnswerChoiceServiceImpl implements ToeicAnswerChoiceService {
     @Autowired
     private ToeicQuestionRepository toeicQuestionRepository;
 
+    @Autowired
+    private SyncToeicTestService syncToeicTestService;
+
     @Override
     public BaseResponse getToeicAnswerChoiceById(Integer id) {
         if (!this.toeicAnswerChoiceRepository.existsById(id)) {
@@ -74,7 +77,7 @@ public class ToeicAnswerChoiceServiceImpl implements ToeicAnswerChoiceService {
         toeicAnswerChoiceEntity.setToeicQuestionEntity(
                 this.toeicQuestionRepository.getById(request.getToeicQuestionId()));
         this.toeicAnswerChoiceRepository.save(toeicAnswerChoiceEntity);
-
+        this.syncToeicTestService.updateToeicAnswerChoiceEntity(toeicAnswerChoiceEntity);
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Tạo dữ liệu thành công");
         response.setData(toeicAnswerChoiceEntity);
@@ -106,7 +109,7 @@ public class ToeicAnswerChoiceServiceImpl implements ToeicAnswerChoiceService {
         toeicAnswerChoiceEntity.setToeicQuestionEntity(
                 this.toeicQuestionRepository.getById(request.getToeicQuestionId()));
         this.toeicAnswerChoiceRepository.save(toeicAnswerChoiceEntity);
-
+        this.syncToeicTestService.updateToeicAnswerChoiceEntity(toeicAnswerChoiceEntity);
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Cập nhật dữ liệu thành công");
         response.setData(toeicAnswerChoiceEntity);

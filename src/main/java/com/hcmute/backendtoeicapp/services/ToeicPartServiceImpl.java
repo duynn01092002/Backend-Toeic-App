@@ -23,6 +23,8 @@ public class ToeicPartServiceImpl implements ToeicPartService {
     @Autowired
     private ToeicPartRepository toeicPartRepository;
 
+    @Autowired
+    private SyncToeicTestService syncToeicTestService;
     @Override
     public BaseResponse createToeicPart(CreateToeicPartRequest request) {
         if (request.getPartNumber() < 1 || request.getPartNumber() > 7) {
@@ -50,6 +52,7 @@ public class ToeicPartServiceImpl implements ToeicPartService {
         toeicPartEntity.setToeicFullTestEntity(toeicFullTestEntity);
 
         this.toeicPartRepository.save(toeicPartEntity);
+        this.syncToeicTestService.updateToeicPartEntity(toeicPartEntity);
 
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Tạo dữ liệu thành công");
@@ -84,6 +87,7 @@ public class ToeicPartServiceImpl implements ToeicPartService {
         toeicPartEntity.setToeicFullTestEntity(toeicFullTestEntity);
 
         this.toeicPartRepository.save(toeicPartEntity);
+        this.syncToeicTestService.updateToeicPartEntity(toeicPartEntity);
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Cập nhật dữ liệu thành công");
         response.setData(toeicPartEntity);

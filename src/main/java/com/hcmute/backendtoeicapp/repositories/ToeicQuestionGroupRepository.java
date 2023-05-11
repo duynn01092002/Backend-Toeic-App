@@ -20,4 +20,15 @@ public interface ToeicQuestionGroupRepository extends JpaRepository<ToeicQuestio
     List<ToeicQuestionGroupEntity> getToeicQuestionGroupEntitiesByToeicPartEntity(
             @Param("id") Integer id
     );
+    @Query("SELECT u FROM ToeicQuestionGroupEntity u INNER JOIN ToeicQuestionEntity v " +
+            "ON u.id=v.toeicQuestionGroupEntity.id WHERE v.id=:id")
+    ToeicQuestionGroupEntity getToeicQuestionGroupEntityByQuestionId(@Param("id") Integer id);
+
+    @Query("SELECT u FROM ToeicQuestionGroupEntity u INNER JOIN ToeicItemContentEntity v " +
+            "ON u.id=v.toeicQuestionGroupEntityQuestionContent.id WHERE v.id=:id")
+    ToeicQuestionGroupEntity getToeicQuestionGroupEntityByQuestionContentId(@Param("id") Integer id);
+
+    @Query("SELECT u FROM ToeicQuestionGroupEntity u INNER JOIN ToeicItemContentEntity v " +
+            "ON u.id=v.toeicQuestionGroupEntityTranscript.id WHERE v.id=:id")
+    ToeicQuestionGroupEntity getToeicQuestionGroupEntityByTranscriptId(@Param("id") Integer id);
 }

@@ -18,4 +18,7 @@ public interface ToeicPartRepository extends JpaRepository<ToeicPartEntity, Inte
     boolean existPartInFullTest(@Param("partNumber") Integer partNumber, @Param("id") Integer id);
     @Query("SELECT u FROM ToeicPartEntity u WHERE u.toeicFullTestEntity.id=:id")
     List<ToeicPartEntity> getToeicPartEntitiesByToeicFullTestId(@Param("id") Integer id);
+    @Query("SELECT u FROM ToeicPartEntity u INNER JOIN ToeicQuestionGroupEntity v " +
+            "ON u.id=v.toeicPartEntity.id WHERE v.id=:id")
+    ToeicPartEntity getToeicPartEntityByQuestionGroupId(@Param("id") Integer id);
 }

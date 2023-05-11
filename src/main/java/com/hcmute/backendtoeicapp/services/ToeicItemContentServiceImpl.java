@@ -36,6 +36,9 @@ public class ToeicItemContentServiceImpl implements ToeicItemContentService {
     @Autowired
     private ToeicStorageService toeicStorageService;
 
+    @Autowired
+    private SyncToeicTestService syncToeicTestService;
+
     private static List<String> getContentTypes() {
         List<String> contentTypes = new ArrayList<>();
         contentTypes.add("HTML");
@@ -143,6 +146,7 @@ public class ToeicItemContentServiceImpl implements ToeicItemContentService {
                     this.toeicQuestionGroupRepository.getById(request.getQuestionTranscriptId()));
         }
         this.toeicItemContentRepository.save(toeicItemContentEntity);
+        this.syncToeicTestService.updateToeicItemContentRepository(toeicItemContentEntity);
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Tạo dữ liệu thành công");
         response.setData(toeicItemContentEntity);
@@ -198,6 +202,7 @@ public class ToeicItemContentServiceImpl implements ToeicItemContentService {
                     this.toeicQuestionGroupRepository.getById(request.getQuestionTranscriptId()));
         }
         this.toeicItemContentRepository.save(toeicItemContentEntity);
+        this.syncToeicTestService.updateToeicItemContentRepository(toeicItemContentEntity);
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Cập nhật dữ liệu thành công");
         response.setData(toeicItemContentEntity);
@@ -284,6 +289,7 @@ public class ToeicItemContentServiceImpl implements ToeicItemContentService {
         toeicItemContentEntity.setToeicQuestionGroupEntityTranscript(groupTranscript);
         toeicItemContentEntity.setToeicStorageEntity(toeicStorageEntity);
         this.toeicItemContentRepository.save(toeicItemContentEntity);
+        this.syncToeicTestService.updateToeicItemContentRepository(toeicItemContentEntity);
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Tạo dữ liệu thành công");
         response.setData(new ToeicItemContentResponse(toeicItemContentEntity));

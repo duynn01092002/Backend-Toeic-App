@@ -33,6 +33,9 @@ public class ToeicQuestionServiceImpl implements ToeicQuestionService {
     @Autowired
     private ToeicAnswerChoiceRepository toeicAnswerChoiceRepository;
 
+    @Autowired
+    private SyncToeicTestService syncToeicTestService;
+
     private static List<String> getCorrectAnswers() {
         List<String> correctAnswers = new ArrayList<>();
         correctAnswers.add("A");
@@ -98,7 +101,7 @@ public class ToeicQuestionServiceImpl implements ToeicQuestionService {
         toeicQuestionEntity.setToeicQuestionGroupEntity(
                 this.toeicQuestionGroupRepository.getById(request.getToeicQuestionGroupId()));
         this.toeicQuestionRepository.save(toeicQuestionEntity);
-
+        this.syncToeicTestService.updateToeicQuestionEntity(toeicQuestionEntity);
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Tạo dữ liệu thành công");
         response.setData(toeicQuestionEntity);
@@ -126,6 +129,7 @@ public class ToeicQuestionServiceImpl implements ToeicQuestionService {
         toeicQuestionEntity.setToeicQuestionGroupEntity(
                 this.toeicQuestionGroupRepository.getById(request.getToeicQuestionGroupId()));
         this.toeicQuestionRepository.save(toeicQuestionEntity);
+        this.syncToeicTestService.updateToeicQuestionEntity(toeicQuestionEntity);
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Cập nhật dữ liệu thành công");
         response.setData(toeicQuestionEntity);
