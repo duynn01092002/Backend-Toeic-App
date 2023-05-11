@@ -539,6 +539,9 @@ public class ToeicSystemVocabularyServiceImpl implements ToeicSystemVocabularySe
              // Push DTO
              AndroidToeicVocabTopic androidToeicVocabTopic =
                      new AndroidToeicVocabTopic(toeicVocabTopicEntity);
+
+             androidToeicVocabTopic.setImageFileName(topicImageFileName);
+
              androidToeicVocabTopics.add(androidToeicVocabTopic);
 
              // Save list words
@@ -558,6 +561,8 @@ public class ToeicSystemVocabularyServiceImpl implements ToeicSystemVocabularySe
                      final String wordImageFileName = assetsCounter + ".png";
 
                      assets.put(wordImageFileName, wordImageStreamArray);
+
+                     androidToeicVocabWord.setImageFilename(wordImageFileName);
                  }
 
                  // Save audio
@@ -570,6 +575,8 @@ public class ToeicSystemVocabularyServiceImpl implements ToeicSystemVocabularySe
                      final String wordAudioFileName = assetsCounter + ".mp3";
 
                      assets.put(wordAudioFileName, wordAudioStreamArray);
+
+                     androidToeicVocabWord.setAudioFileName(wordAudioFileName);
                  }
 
                  words.add(androidToeicVocabWord);
