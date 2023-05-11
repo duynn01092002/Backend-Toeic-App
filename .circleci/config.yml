@@ -28,3 +28,7 @@ workflows:
   build_pipeline:
     jobs:
       - build
+          filters:
+            branches:
+              only:
+                - deloyment
