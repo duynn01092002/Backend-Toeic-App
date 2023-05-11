@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 @Entity
+@Deprecated
 public class ToeicVocabWordAudioEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

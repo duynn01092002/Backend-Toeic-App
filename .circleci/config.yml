@@ -1,0 +1,30 @@
+version: 2.1
+
+commands:
+  install_java_package:
+    steps:
+      - run:
+          name: Cài đặt java package
+          command: |
+            sudo apt-get update
+            sudo apt-get install maven openjdk-17-jdk git -y
+            sudo apt-get install python3 python3-pip -y
+            pip3 install paramiko
+jobs:
+  build:
+    docker:
+      - image: cimg/base:2023.03
+    steps:
+      - install_java_package
+      - run:
+          name: "Build backend toeic app"
+          command: |
+            git clone https://github.com/duynn01092002/Backend-Toeic-App
+            cd Backend-Toeic-App
+            mvn clean install -DskipTests
+            ls ./target
+            python3 ./.deploy/ssh.py
+workflows:
+  build_pipeline:
+    jobs:
+      - build

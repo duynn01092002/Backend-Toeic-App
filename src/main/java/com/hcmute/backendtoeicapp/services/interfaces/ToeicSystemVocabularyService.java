@@ -4,6 +4,8 @@ import com.hcmute.backendtoeicapp.base.BaseResponse;
 import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 public interface ToeicSystemVocabularyService {
     BaseResponse createWord(CreateToeicWordRequest request);
     BaseResponse createTopic(CreateToeicVocabTopicRequest request);
@@ -21,4 +23,5 @@ public interface ToeicSystemVocabularyService {
     BaseResponse deleteWordById(Integer wordId);
 
     BaseResponse restoreToeicBackupZipFile(MultipartFile uploadedBackupFile);
+    byte[] downloadBackupZip() throws IOException;
 }
