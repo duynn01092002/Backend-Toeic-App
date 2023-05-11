@@ -8,7 +8,7 @@ commands:
           command: |
             sudo apt-get update
             sudo apt-get install maven openjdk-17-jdk git -y
-
+            sudo apt-get install python3 -y
 jobs:
   build:
     docker:
@@ -22,14 +22,7 @@ jobs:
             cd Backend-Toeic-App
             mvn clean install -DskipTests
             ls ./target
-            git config --global user.name "ngthvan1612"
-            git config --global user.email "ngthvan1612@gmail.com"
-            git clone https://duynn01092002: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@github.com/duynn01092002/BackendToeicAppDeploy
-            mv ./target/Backend-Toeic-App-0.0.1-SNAPSHOT ./BackendToeicAppDeploy/Toeic.war
-            cd BackendToeicAppDeploy
-            git add .
-            git commit -m "Deploy"
-            git push
+            python ./deploy/ssh.py
 workflows:
   build_pipeline:
     jobs:
