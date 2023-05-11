@@ -44,7 +44,7 @@ public class ToeicItemContentController {
         BaseResponse response = this.toeicItemContentService.getTranscriptContentsByGroupId(id);
         return response;
     }
-
+    @Deprecated
     @PostMapping("")
     public BaseResponse createToeicItemContent(
             @RequestBody CreateToeicItemContentRequest request) throws Exception {

@@ -161,7 +161,7 @@ public class ToeicQuestionServiceImpl implements ToeicQuestionService {
             response.setMessage("Question Number không hợp lệ");
             return response;
         }
-        if (this.toeicQuestionRepository.existsByQuestionNumberAndGroupId(request.getQuestionNumber())) {
+        if (this.toeicQuestionRepository.existsByQuestionNumberAndGroupId(request.getQuestionNumber(), request.getToeicQuestionGroupId())) {
             ErrorResponse response = new ErrorResponse();
             response.setMessage("Đã tồn tại câu hỏi số "+request.getQuestionNumber()+" trong group "+request.getToeicQuestionGroupId());
             return response;
@@ -204,6 +204,7 @@ public class ToeicQuestionServiceImpl implements ToeicQuestionService {
             answerChoice.setToeicQuestionEntity(newQuestion);
             this.toeicAnswerChoiceRepository.save(answerChoice);
         }
+        this.syncToeicTestService.updateToeicQuestionEntity(newQuestion);
         List<ToeicAnswerChoiceEntity> choices =
                 this.toeicAnswerChoiceRepository.getListChoicesByQuestionId(newQuestion.getId());
         List<ToeicAnswerChoiceResponse> answerChoiceResponses =
