@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hcmute.backendtoeicapp.base.BaseResponse;
 import com.hcmute.backendtoeicapp.base.SuccessfulResponse;
+import com.hcmute.backendtoeicapp.dto.android.vocab.AndroidToeicVocabTopic;
+import com.hcmute.backendtoeicapp.dto.android.vocab.AndroidToeicVocabWord;
 import com.hcmute.backendtoeicapp.dto.toeicvocabtopic.*;
 import com.hcmute.backendtoeicapp.entities.ToeicStorageEntity;
 import com.hcmute.backendtoeicapp.entities.ToeicVocabTopicEntity;
@@ -22,12 +24,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 @Service
 public class ToeicSystemVocabularyServiceImpl implements ToeicSystemVocabularyService {
@@ -35,6 +39,7 @@ public class ToeicSystemVocabularyServiceImpl implements ToeicSystemVocabularySe
     private ToeicVocabTopicRepository toeicVocabTopicRepository;
 
     @Autowired
+    @Deprecated
     private ToeicVocabWordAudioRepository toeicVocabWordAudioRepository;
 
     @Autowired
@@ -394,10 +399,111 @@ public class ToeicSystemVocabularyServiceImpl implements ToeicSystemVocabularySe
         }
     }
 
+    @Deprecated
+    private void restoreBackupFile_Prepared_For_Fix(
+            final InputStream inputStream
+    ) throws IOException {
+        ZipInputStream zipInputStream = new ZipInputStream(inputStream);
+
+        ZipEntry zipEntry = null;
+        Map<String, byte[]> fileStreamMapping = new Hashtable<>();
+
+        List<ToeicVocabTopicBackupModel> topics = null;
+
+        while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+            if (zipEntry.isDirectory())
+                continue;
+
+            final String fileName = zipEntry.getName();
+            final byte[] buffer = zipInputStream.readAllBytes();
+
+            if (fileName.equals("config.json")) {
+                final String json = new String(buffer, StandardCharsets.UTF_8);
+                topics = List.of(gsonInstance.fromJson(json, ToeicVocabTopicBackupModel[].class));
+            }
+            else {
+                fileStreamMapping.put(fileName, buffer);
+            }
+        }
+
+        if (topics == null) {
+            throw new RuntimeException("Not found config.json");
+        }
+
+        this.toeicVocabWordAudioRepository.deleteAll();
+        this.toeicVocabWordRepository.deleteAll();
+        this.toeicVocabTopicRepository.deleteAll();
+
+        for (ToeicVocabTopicBackupModel topicModel : topics) {
+            if (!fileStreamMapping.containsKey(topicModel.getImg())) {
+                throw new RuntimeException("Not found " + topicModel.getImg());
+            }
+
+            ToeicVocabTopicEntity topicEntity = new ToeicVocabTopicEntity();
+            topicEntity.setTopicName(topicModel.getTopicName());
+
+            ToeicStorageEntity topicImageStorageEntity =
+                    this.toeicStorageService.saveByteArrayAndReturnEntity(
+                            topicModel.getImg(),
+                            fileStreamMapping.get(topicModel.getImg())
+                    );
+
+            topicEntity.setToeicTopicImage(topicImageStorageEntity);
+
+            this.toeicVocabTopicRepository.save(topicEntity);
+
+            for (ToeicVocabWordBackupModel wordModel : topicModel.getWordList()) {
+                ToeicVocabWordEntity wordEntity = new ToeicVocabWordEntity();
+                wordEntity.setEnglish(wordModel.getEng());
+                wordEntity.setVietnamese(wordModel.getViet());
+                wordEntity.setPronounce(wordModel.getPronounce());
+                wordEntity.setExampleVietnamese(wordModel.getExampleViet());
+                wordEntity.setExampleEnglish(wordModel.getExampleEng());
+
+                if (wordModel.getImg() != null) {
+                    if (!fileStreamMapping.containsKey(wordModel.getImg())) {
+                        throw new RuntimeException("Not found " + wordModel.getImg());
+                    }
+
+                    ToeicStorageEntity wordImageStorageEntity =
+                            this.toeicStorageService.saveByteArrayAndReturnEntity(
+                                    wordModel.getImg(),
+                                    fileStreamMapping.get(wordModel.getImg())
+                            );
+
+                    wordEntity.setWordImage(wordImageStorageEntity);
+                }
+
+                wordEntity.setTopic(topicEntity);
+
+                this.toeicVocabWordRepository.save(wordEntity);
+
+                Optional<ToeicVocabAudioBackupModel> optionalToeicVocabAudioBackupModel = wordModel.getAudio()
+                        .stream()
+                        .filter(audio -> audio.getSpeaker().equals("Joey"))
+                        .findFirst();
+
+                assert optionalToeicVocabAudioBackupModel.isPresent();
+
+                final ToeicVocabAudioBackupModel audioBackupModel = optionalToeicVocabAudioBackupModel.get();
+
+                ToeicStorageEntity audioStorageEntity =
+                        this.toeicStorageService.saveByteArrayAndReturnEntity(
+                                audioBackupModel.getFile(),
+                                fileStreamMapping.get(audioBackupModel.getFile())
+                        );
+
+                wordEntity.setAudioStorage(audioStorageEntity);
+                this.toeicVocabWordRepository.save(wordEntity);
+            }
+        }
+    }
+
+    @Deprecated
     @Override
     public BaseResponse restoreToeicBackupZipFile(MultipartFile uploadedBackupFile) {
         try {
-            this.restoreBackupFile(new ByteArrayInputStream(uploadedBackupFile.getBytes()));
+            this.restoreBackupFile_Prepared_For_Fix(new ByteArrayInputStream(uploadedBackupFile.getBytes()));
         } catch (IOException ignored) {
             throw new RuntimeException("Restore zip file error!");
         }
@@ -405,6 +511,105 @@ public class ToeicSystemVocabularyServiceImpl implements ToeicSystemVocabularySe
         SuccessfulResponse response = new SuccessfulResponse();
         response.setData("Backup OK");
         return response;
+    }
+
+    @Override
+    public byte[] downloadBackupZip() throws IOException {
+        // Pushing -> RAM
+        Map<String, byte[]> assets = new HashMap<>();
+        int assetsCounter = 0;
+
+        final List<ToeicVocabTopicEntity> toeicVocabTopicEntities = this.toeicVocabTopicRepository
+                .findAll();
+        final List<AndroidToeicVocabTopic> androidToeicVocabTopics = new ArrayList<>();
+
+        for (ToeicVocabTopicEntity toeicVocabTopicEntity : toeicVocabTopicEntities) {
+            // Save image
+             final Integer topicStorageImageId = toeicVocabTopicEntity
+                    .getToeicTopicImage()
+                    .getId();
+
+             final byte[] toeicImageStreamArray = this.toeicStorageService
+                     .downloadFile(topicStorageImageId);
+
+             ++assetsCounter;
+             final String topicImageFileName = assetsCounter + ".png";
+             assets.put(topicImageFileName, toeicImageStreamArray);
+
+             // Push DTO
+             AndroidToeicVocabTopic androidToeicVocabTopic =
+                     new AndroidToeicVocabTopic(toeicVocabTopicEntity);
+
+             androidToeicVocabTopic.setImageFileName(topicImageFileName);
+
+             androidToeicVocabTopics.add(androidToeicVocabTopic);
+
+             // Save list words
+             final List<ToeicVocabWordEntity> toeicVocabWordEntities = this.toeicVocabWordRepository
+                     .getAllWordsByTopicId(toeicVocabTopicEntity.getId());
+             final List<AndroidToeicVocabWord> words = new ArrayList<>();
+
+             for (ToeicVocabWordEntity toeicVocabWordEntity : toeicVocabWordEntities) {
+                 AndroidToeicVocabWord androidToeicVocabWord = new AndroidToeicVocabWord(toeicVocabWordEntity);
+
+                 // Save image
+                 if (toeicVocabWordEntity.getWordImage() != null) {
+                     final byte[] wordImageStreamArray = this.toeicStorageService
+                             .downloadFile(toeicVocabWordEntity.getWordImage().getId());
+
+                     assetsCounter++;
+                     final String wordImageFileName = assetsCounter + ".png";
+
+                     assets.put(wordImageFileName, wordImageStreamArray);
+
+                     androidToeicVocabWord.setImageFilename(wordImageFileName);
+                 }
+
+                 // Save audio
+
+                 if (toeicVocabWordEntity.getAudioStorage() != null) {
+                     final byte[] wordAudioStreamArray = this.toeicStorageService
+                             .downloadFile(toeicVocabWordEntity.getAudioStorage().getId());
+
+                     assetsCounter++;
+                     final String wordAudioFileName = assetsCounter + ".mp3";
+
+                     assets.put(wordAudioFileName, wordAudioStreamArray);
+
+                     androidToeicVocabWord.setAudioFileName(wordAudioFileName);
+                 }
+
+                 words.add(androidToeicVocabWord);
+             }
+
+             androidToeicVocabTopic.setWords(words);
+        }
+
+        // Pulling RAM -> Zip file stream
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream);
+        ZipEntry zipEntry = null;
+
+        // Write config.json
+        String configJsonString = gsonInstance.toJson(androidToeicVocabTopics);
+        zipEntry = new ZipEntry("config.json");
+        zipOutputStream.putNextEntry(zipEntry);
+        zipOutputStream.write(configJsonString.getBytes(StandardCharsets.UTF_8));
+        zipOutputStream.closeEntry();
+
+        // Write assets
+        for (Map.Entry<String, byte[]> assetEntry : assets.entrySet()) {
+            final String fileName = assetEntry.getKey();
+            final byte[] stream = assetEntry.getValue();
+
+            zipEntry = new ZipEntry("data/" + fileName);
+            zipOutputStream.putNextEntry(zipEntry);
+            zipOutputStream.write(stream);
+            zipOutputStream.closeEntry();
+        }
+
+        zipOutputStream.close();
+        return byteArrayOutputStream.toByteArray();
     }
 
     @Override
