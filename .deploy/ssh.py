@@ -24,9 +24,6 @@ exit_status = stdout.channel.recv_exit_status()
 
 print('\n'.join(stdout.readlines()))
 
-ftp.close()
-ssh.close()
-
 ssh.close()
 
 print(f'Close connection {SSH_IP} OK')
