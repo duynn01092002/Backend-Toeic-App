@@ -8,7 +8,8 @@ commands:
           command: |
             sudo apt-get update
             sudo apt-get install maven openjdk-17-jdk git -y
-
+            sudo apt-get install python3 python3-pip -y
+            pip3 install paramiko requests
 jobs:
   build:
     docker:
@@ -20,17 +21,15 @@ jobs:
           command: |
             git clone https://github.com/duynn01092002/Backend-Toeic-App
             cd Backend-Toeic-App
+            echo "spring.profiles.active=prod" > src/main/resources/application.properties
             mvn clean install -DskipTests
             ls ./target
-            git config --global user.name "ngthvan1612"
-            git config --global user.email "ngthvan1612@gmail.com"
-            git clone https://ngthvan1612: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@github.com/duynn01092002/BackendToeicAppDeploy
-            mv ./target/Backend-Toeic-App-0.0.1-SNAPSHOT ./BackendToeicAppDeploy/Toeic.war
-            cd BackendToeicAppDeploy
-            git add .
-            git commit -m "Deploy"
-            git push
+            python3 ./.deploy/ssh.py
 workflows:
   build_pipeline:
     jobs:
-      - build
+      - build:
+          filters:
+            branches:
+              only:
+                - deployment
