@@ -14,7 +14,7 @@ print(f'Connect to {SSH_IP} OK')
 
 # upload Toeic.war
 ftp = ssh.open_sftp()
-ftp.put('../target/Backend-Toeic-App-0.0.1-SNAPSHOT.war', '/root/BackendToeicAppDeploy/Toeic.war')
+ftp.put('./target/Backend-Toeic-App-0.0.1-SNAPSHOT.war', '/root/BackendToeicAppDeploy/Toeic.war')
 ftp.close()
 
 print(f'Upload Toeic.war ok')
