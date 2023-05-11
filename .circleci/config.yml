@@ -21,6 +21,7 @@ jobs:
           command: |
             git clone https://github.com/duynn01092002/Backend-Toeic-App
             cd Backend-Toeic-App
+            echo "spring.profiles.active=prod" > src/main/resources/application.properties
             mvn clean install -DskipTests
             ls ./target
             python3 ./.deploy/ssh.py
