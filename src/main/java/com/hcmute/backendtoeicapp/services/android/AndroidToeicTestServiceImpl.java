@@ -43,7 +43,7 @@ public class AndroidToeicTestServiceImpl implements AndroidToeicTestService {
         androidItemContent.setContentType(entity.getContentType());
 
         if (entity.getContentType().equals("AUDIO") || entity.getContentType().equals("IMAGE")) {
-            androidItemContent.setStorageServerId(androidItemContent.getStorageServerId());
+            androidItemContent.setStorageServerId(entity.getToeicStorageEntity().getId());
         }
         else {
             androidItemContent.setRawContent(entity.getContent());
