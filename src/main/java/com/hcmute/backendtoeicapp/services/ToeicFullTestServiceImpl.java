@@ -27,6 +27,8 @@ public class ToeicFullTestServiceImpl implements ToeicFullTestService {
     @Autowired
     private ToeicPartRepository toeicPartRepository;
 
+    @Autowired
+    private SyncToeicTestService syncToeicTestService;
     @Override
     public BaseResponse createToeicFullTest(CreateToeicFullTestRequest request) {
         ToeicFullTestEntity toeicFullTestEntity = new ToeicFullTestEntity();
@@ -41,7 +43,7 @@ public class ToeicFullTestServiceImpl implements ToeicFullTestService {
             toeicPartEntity.setToeicFullTestEntity(toeicFullTestEntity);
             this.toeicPartRepository.save(toeicPartEntity);
         }
-
+        this.syncToeicTestService.updateToeicFullTestEntity(toeicFullTestEntity);
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Tạo dữ liệu thành công");
         response.setData(toeicFullTestEntity);
@@ -84,7 +86,7 @@ public class ToeicFullTestServiceImpl implements ToeicFullTestService {
         toeicFullTestEntity.setSlug(toSlug(request.getFullName()));
 
         this.toeicFullTestRepository.save(toeicFullTestEntity);
-
+        this.syncToeicTestService.updateToeicFullTestEntity(toeicFullTestEntity);
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Cập nhật dữ liệu thành công");
         response.setData(toeicFullTestEntity);

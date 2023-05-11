@@ -14,7 +14,8 @@ public class ToeicFullTestEntity {
     private String fullName;
     @Column(name = "slug", unique = true)
     private String slug;
-
+    @Column(name = "checkSum")
+    private String checkSum;
     public ToeicFullTestEntity() {}
 
 }

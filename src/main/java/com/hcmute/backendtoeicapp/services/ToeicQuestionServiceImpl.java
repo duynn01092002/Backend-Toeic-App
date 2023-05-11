@@ -3,9 +3,14 @@ package com.hcmute.backendtoeicapp.services;
 import com.hcmute.backendtoeicapp.base.BaseResponse;
 import com.hcmute.backendtoeicapp.base.ErrorResponse;
 import com.hcmute.backendtoeicapp.base.SuccessfulResponse;
+import com.hcmute.backendtoeicapp.dto.toeicAnswerChoice.ToeicAnswerChoiceResponse;
+import com.hcmute.backendtoeicapp.dto.toeicNewQuestion.CreateNewQuestionRequest;
 import com.hcmute.backendtoeicapp.dto.toeicQuestion.CreateToeicQuestionRequest;
+import com.hcmute.backendtoeicapp.dto.toeicQuestion.ToeicQuestionResponse;
 import com.hcmute.backendtoeicapp.dto.toeicQuestion.UpdateToeicQuestionRequest;
+import com.hcmute.backendtoeicapp.entities.ToeicAnswerChoiceEntity;
 import com.hcmute.backendtoeicapp.entities.ToeicQuestionEntity;
+import com.hcmute.backendtoeicapp.repositories.ToeicAnswerChoiceRepository;
 import com.hcmute.backendtoeicapp.repositories.ToeicQuestionGroupRepository;
 import com.hcmute.backendtoeicapp.repositories.ToeicQuestionRepository;
 import com.hcmute.backendtoeicapp.services.interfaces.ToeicQuestionService;
@@ -13,7 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ToeicQuestionServiceImpl implements ToeicQuestionService {
@@ -22,6 +29,12 @@ public class ToeicQuestionServiceImpl implements ToeicQuestionService {
 
     @Autowired
     private ToeicQuestionGroupRepository toeicQuestionGroupRepository;
+
+    @Autowired
+    private ToeicAnswerChoiceRepository toeicAnswerChoiceRepository;
+
+    @Autowired
+    private SyncToeicTestService syncToeicTestService;
 
     private static List<String> getCorrectAnswers() {
         List<String> correctAnswers = new ArrayList<>();
@@ -88,7 +101,7 @@ public class ToeicQuestionServiceImpl implements ToeicQuestionService {
         toeicQuestionEntity.setToeicQuestionGroupEntity(
                 this.toeicQuestionGroupRepository.getById(request.getToeicQuestionGroupId()));
         this.toeicQuestionRepository.save(toeicQuestionEntity);
-
+        this.syncToeicTestService.updateToeicQuestionEntity(toeicQuestionEntity);
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Tạo dữ liệu thành công");
         response.setData(toeicQuestionEntity);
@@ -96,6 +109,11 @@ public class ToeicQuestionServiceImpl implements ToeicQuestionService {
     }
     @Override
     public BaseResponse updateToeicQuestion(UpdateToeicQuestionRequest request) {
+        if (!this.toeicQuestionGroupRepository.existsById(request.getToeicQuestionGroupId())) {
+            ErrorResponse response = new ErrorResponse();
+            response.setMessage("Không tồn tại toeic question group với id = " + request.getToeicQuestionGroupId());
+            return response;
+        }
         if (!this.toeicQuestionRepository.existsById(request.getId())) {
             ErrorResponse response = new ErrorResponse();
             response.setMessage("Không tồn tại toeic question với id = " + request.getId());
@@ -111,6 +129,7 @@ public class ToeicQuestionServiceImpl implements ToeicQuestionService {
         toeicQuestionEntity.setToeicQuestionGroupEntity(
                 this.toeicQuestionGroupRepository.getById(request.getToeicQuestionGroupId()));
         this.toeicQuestionRepository.save(toeicQuestionEntity);
+        this.syncToeicTestService.updateToeicQuestionEntity(toeicQuestionEntity);
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Cập nhật dữ liệu thành công");
         response.setData(toeicQuestionEntity);
@@ -127,6 +146,77 @@ public class ToeicQuestionServiceImpl implements ToeicQuestionService {
         this.toeicQuestionRepository.delete(toeicQuestionEntity);
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Xóa dữ liệu thành công");
+        return response;
+    }
+
+    @Override
+    public BaseResponse createNewQuestion(CreateNewQuestionRequest request) {
+        if (!this.toeicQuestionGroupRepository.existsById(request.getToeicQuestionGroupId())) {
+            ErrorResponse response = new ErrorResponse();
+            response.setMessage("Không tồn tại toeic question group với id = " + request.getToeicQuestionGroupId());
+            return response;
+        }
+        if (request.getQuestionNumber() > 200 || request.getQuestionNumber() <= 0) {
+            ErrorResponse response = new ErrorResponse();
+            response.setMessage("Question Number không hợp lệ");
+            return response;
+        }
+        if (this.toeicQuestionRepository.existsByQuestionNumberAndGroupId(request.getQuestionNumber())) {
+            ErrorResponse response = new ErrorResponse();
+            response.setMessage("Đã tồn tại câu hỏi số "+request.getQuestionNumber()+" trong group "+request.getToeicQuestionGroupId());
+            return response;
+        }
+        if (request.getToeicAnswers().size() > 4 || request.getToeicAnswers().size() < 3) {
+            ErrorResponse response = new ErrorResponse();
+            response.setMessage("Danh sách đáp án không hợp lệ");
+            return response;
+        }
+        List<String> answerList = new ArrayList<>();
+        for (ToeicAnswerChoiceEntity answer : request.getToeicAnswers()) {
+            answerList.add(answer.getLabel());
+        }
+        for (int i = 0;i<answerList.size();i++) {
+            if (!(getCorrectAnswers().contains(answerList.get(i)))) {
+                ErrorResponse response = new ErrorResponse();
+                response.setMessage("Đáp án phải thuộc A, B, C, D");
+                return response;
+            }
+        }
+        Set<String> set = new HashSet<>(answerList);
+        if (set.size() != answerList.size()) {
+            ErrorResponse response = new ErrorResponse();
+            response.setMessage("Danh sách đáp án không hợp lệ");
+            return response;
+        }
+        if (!(getCorrectAnswers().contains(request.getCorrectAnswer()))) {
+            ErrorResponse response = new ErrorResponse();
+            response.setMessage("Đáp án đúng phải thuộc A, B, C, D");
+            return response;
+        }
+        ToeicQuestionEntity newQuestion = new ToeicQuestionEntity();
+        newQuestion.setCorrectAnswer(request.getCorrectAnswer());
+        newQuestion.setQuestionNumber(request.getQuestionNumber());
+        newQuestion.setContent(request.getContent());
+        newQuestion.setToeicQuestionGroupEntity(
+                this.toeicQuestionGroupRepository.getById(request.getToeicQuestionGroupId()));
+        this.toeicQuestionRepository.save(newQuestion);
+        for (ToeicAnswerChoiceEntity answerChoice : request.getToeicAnswers()) {
+            answerChoice.setToeicQuestionEntity(newQuestion);
+            this.toeicAnswerChoiceRepository.save(answerChoice);
+        }
+        List<ToeicAnswerChoiceEntity> choices =
+                this.toeicAnswerChoiceRepository.getListChoicesByQuestionId(newQuestion.getId());
+        List<ToeicAnswerChoiceResponse> answerChoiceResponses =
+                choices.stream().map(ToeicAnswerChoiceResponse::new).toList();
+        SuccessfulResponse response = new SuccessfulResponse();
+        response.setMessage("Tạo câu hỏi mới thành công");
+        ToeicQuestionResponse questionResponse = new ToeicQuestionResponse();
+        questionResponse.setQuestionNumber(newQuestion.getQuestionNumber());
+        questionResponse.setContent(newQuestion.getContent());
+        questionResponse.setCorrectAnswer(newQuestion.getCorrectAnswer());
+        questionResponse.setId(newQuestion.getId());
+        questionResponse.setChoices(answerChoiceResponses);
+        response.setData(questionResponse);
         return response;
     }
 }

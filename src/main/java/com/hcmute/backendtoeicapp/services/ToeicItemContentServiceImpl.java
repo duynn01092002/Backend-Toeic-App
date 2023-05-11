@@ -3,17 +3,22 @@ package com.hcmute.backendtoeicapp.services;
 import com.hcmute.backendtoeicapp.base.BaseResponse;
 import com.hcmute.backendtoeicapp.base.ErrorResponse;
 import com.hcmute.backendtoeicapp.base.SuccessfulResponse;
+import com.hcmute.backendtoeicapp.dto.toeicItemContent.CreateNewItemContentRequest;
 import com.hcmute.backendtoeicapp.dto.toeicItemContent.CreateToeicItemContentRequest;
+import com.hcmute.backendtoeicapp.dto.toeicItemContent.ToeicItemContentResponse;
 import com.hcmute.backendtoeicapp.dto.toeicItemContent.UpdateToeicItemContentRequest;
 import com.hcmute.backendtoeicapp.entities.ToeicItemContentEntity;
+import com.hcmute.backendtoeicapp.entities.ToeicQuestionGroupEntity;
 import com.hcmute.backendtoeicapp.entities.ToeicStorageEntity;
 import com.hcmute.backendtoeicapp.repositories.ToeicItemContentRepository;
 import com.hcmute.backendtoeicapp.repositories.ToeicQuestionGroupRepository;
 import com.hcmute.backendtoeicapp.repositories.ToeicStorageRepository;
 import com.hcmute.backendtoeicapp.services.interfaces.ToeicItemContentService;
+import com.hcmute.backendtoeicapp.services.interfaces.ToeicStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +32,12 @@ public class ToeicItemContentServiceImpl implements ToeicItemContentService {
 
     @Autowired
     private ToeicStorageRepository toeicStorageRepository;
+
+    @Autowired
+    private ToeicStorageService toeicStorageService;
+
+    @Autowired
+    private SyncToeicTestService syncToeicTestService;
 
     private static List<String> getContentTypes() {
         List<String> contentTypes = new ArrayList<>();
@@ -135,6 +146,7 @@ public class ToeicItemContentServiceImpl implements ToeicItemContentService {
                     this.toeicQuestionGroupRepository.getById(request.getQuestionTranscriptId()));
         }
         this.toeicItemContentRepository.save(toeicItemContentEntity);
+        this.syncToeicTestService.updateToeicItemContentRepository(toeicItemContentEntity);
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Tạo dữ liệu thành công");
         response.setData(toeicItemContentEntity);
@@ -190,6 +202,7 @@ public class ToeicItemContentServiceImpl implements ToeicItemContentService {
                     this.toeicQuestionGroupRepository.getById(request.getQuestionTranscriptId()));
         }
         this.toeicItemContentRepository.save(toeicItemContentEntity);
+        this.syncToeicTestService.updateToeicItemContentRepository(toeicItemContentEntity);
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Cập nhật dữ liệu thành công");
         response.setData(toeicItemContentEntity);
@@ -206,6 +219,80 @@ public class ToeicItemContentServiceImpl implements ToeicItemContentService {
         this.toeicItemContentRepository.delete(toeicItemContentEntity);
         SuccessfulResponse response = new SuccessfulResponse();
         response.setMessage("Xóa dữ liệu thành công");
+        return response;
+    }
+
+    @Override
+    public BaseResponse createNewItemContent(CreateNewItemContentRequest request) throws Exception {
+        List<String> contentTypes = getContentTypes();
+        if (!contentTypes.contains(request.getContentType())) {
+            ErrorResponse response = new ErrorResponse();
+            response.setMessage("Chỉ nhận các giá trị gồm: HTML, PLAIN, IMAGE, AUDIO");
+            return response;
+        }
+        if ((request.getQuestionContentId() == null && request.getQuestionTranscriptId() == null) ||
+                (request.getQuestionContentId() != null && request.getQuestionTranscriptId() != null))
+            throw new Exception("question group id error");
+
+        ToeicQuestionGroupEntity groupQuestionContent = null;
+        ToeicQuestionGroupEntity groupTranscript = null;
+
+        if (request.getQuestionContentId() != null) {
+            if (!this.toeicQuestionGroupRepository.existsById(request.getQuestionContentId())) {
+                ErrorResponse response = new ErrorResponse();
+                response.setMessage("Không tồn tại question content với id = " + request.getQuestionContentId());
+                return response;
+            }
+            groupQuestionContent = this.toeicQuestionGroupRepository.getById(request.getQuestionContentId());
+        }
+        if (request.getQuestionTranscriptId() != null) {
+            if (!this.toeicQuestionGroupRepository.existsById(request.getQuestionTranscriptId())) {
+                ErrorResponse response = new ErrorResponse();
+                response.setMessage("Không tồn tại question transcript với id = " + request.getQuestionTranscriptId());
+                return response;
+            }
+            groupTranscript = this.toeicQuestionGroupRepository.getById(request.getQuestionTranscriptId());
+        }
+
+        ToeicStorageEntity toeicStorageEntity = null;
+        String stringContent = null;
+
+        if (request.getContentType().equals("HTML") ||
+                request.getContentType().equals("PLAIN")) {
+            if (request.getStringContent() == null) {
+                ErrorResponse response = new ErrorResponse();
+                response.setMessage("Bạn chưa nhập nội dung");
+                return response;
+            }
+            stringContent = request.getStringContent();
+        }
+        if (request.getContentType().equals("AUDIO") ||
+                request.getContentType().equals("IMAGE")) {
+            if (request.getContent() == null) {
+                ErrorResponse response = new ErrorResponse();
+                response.setMessage("Bạn chưa upload file");
+                return response;
+            }
+            try {
+                toeicStorageEntity = this.toeicStorageService.saveByteArrayAndReturnEntity(
+                        request.getContent().getOriginalFilename(),
+                        request.getContent().getBytes()
+                );
+            } catch (IOException e) {
+                throw new RuntimeException("Cannot read or save file");
+            }
+        }
+        ToeicItemContentEntity toeicItemContentEntity = new ToeicItemContentEntity();
+        toeicItemContentEntity.setContentType(request.getContentType());
+        toeicItemContentEntity.setContent(stringContent);
+        toeicItemContentEntity.setToeicQuestionGroupEntityQuestionContent(groupQuestionContent);
+        toeicItemContentEntity.setToeicQuestionGroupEntityTranscript(groupTranscript);
+        toeicItemContentEntity.setToeicStorageEntity(toeicStorageEntity);
+        this.toeicItemContentRepository.save(toeicItemContentEntity);
+        this.syncToeicTestService.updateToeicItemContentRepository(toeicItemContentEntity);
+        SuccessfulResponse response = new SuccessfulResponse();
+        response.setMessage("Tạo dữ liệu thành công");
+        response.setData(new ToeicItemContentResponse(toeicItemContentEntity));
         return response;
     }
 }
