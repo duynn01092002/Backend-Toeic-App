@@ -20,7 +20,7 @@ ftp.close()
 
 print(f'Upload Toeic.war ok')
 
-(_, stdout, stderr) = ssh.exec_command('cd BackendToeicAppDeploy; docker-compose down; docker-compose up -d;')
+(_, stdout, stderr) = ssh.exec_command('cd BackendToeicAppDeploy && docker-compose down && docker-compose up -d')
 exit_status = stdout.channel.recv_exit_status()
 
 assert exit_status == 0
