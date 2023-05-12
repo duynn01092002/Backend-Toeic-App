@@ -2,6 +2,8 @@ package com.hcmute.backendtoeicapp.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Data
 @Entity
@@ -17,6 +19,7 @@ public class ToeicAnswerChoiceEntity {
     private String explain;
     @ManyToOne
     @JoinColumn(name = "toeic_question_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private ToeicQuestionEntity toeicQuestionEntity;
 
     public ToeicAnswerChoiceEntity() {}
