@@ -1,6 +1,7 @@
 package com.hcmute.backendtoeicapp.controllers;
 
 import com.hcmute.backendtoeicapp.base.BaseResponse;
+import com.hcmute.backendtoeicapp.dto.toeicStorage.GetListStorageEntityRequest;
 import com.hcmute.backendtoeicapp.services.interfaces.ToeicStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -65,6 +66,24 @@ public class ToeicStorageController {
     public ResponseEntity downloadFile(
             @PathVariable Integer id) throws IOException {
         final byte[] buffer = this.toeicStorageService.downloadFile(id);
+        if (buffer == null) {
+            return ResponseEntity.notFound().build();
+        }
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(buffer);
+        InputStreamResource resource = new InputStreamResource(inputStream);
+        return ResponseEntity.ok()
+                // Content-Disposition
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=toeic")
+                // Content-Type
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                // Contet-Length
+                .contentLength(buffer.length) //
+                .body(resource);
+    }
+
+    @PostMapping("get-list-storage")
+    public ResponseEntity getListStorageFile(@RequestBody GetListStorageEntityRequest request) throws IOException {
+        final byte[] buffer = this.toeicStorageService.getListStorageEntity(request);
         if (buffer == null) {
             return ResponseEntity.notFound().build();
         }

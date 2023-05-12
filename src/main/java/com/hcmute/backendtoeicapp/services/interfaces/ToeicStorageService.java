@@ -1,6 +1,7 @@
 package com.hcmute.backendtoeicapp.services.interfaces;
 
 import com.hcmute.backendtoeicapp.base.BaseResponse;
+import com.hcmute.backendtoeicapp.dto.toeicStorage.GetListStorageEntityRequest;
 import com.hcmute.backendtoeicapp.entities.ToeicStorageEntity;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -31,4 +32,6 @@ public interface ToeicStorageService {
 
     @Deprecated
     BaseResponse uploadZipFile(MultipartFile zipFile) throws IOException;
+
+    byte[] getListStorageEntity(GetListStorageEntityRequest request) throws IOException;
 }
