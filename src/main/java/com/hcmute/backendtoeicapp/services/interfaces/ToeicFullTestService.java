@@ -14,4 +14,6 @@ public interface ToeicFullTestService {
     BaseResponse updateToeicFullTestById(UpdateToeicFullTestRequest request);
 
     BaseResponse deleteToeicFullTestById(Integer id);
+
+    BaseResponse getCheckSumString();
 }

@@ -113,4 +113,19 @@ public class ToeicFullTestServiceImpl implements ToeicFullTestService {
         String slug = NON_LATIN.matcher(normalized).replaceAll("");
         return slug.toLowerCase(Locale.ENGLISH);
     }
+
+    @Override
+    public BaseResponse getCheckSumString() {
+        List<String> listCheckSum = this.toeicFullTestRepository.getListCheckSum();
+        String finalString = "";
+        for (String checkSum : listCheckSum){
+            if (finalString.equals(""))
+                finalString += checkSum;
+            else finalString = finalString + " " + checkSum;
+        }
+        SuccessfulResponse response = new SuccessfulResponse();
+        response.setMessage("Lấy dữ liệu thành công");
+        response.setData(finalString);
+        return response;
+    }
 }
