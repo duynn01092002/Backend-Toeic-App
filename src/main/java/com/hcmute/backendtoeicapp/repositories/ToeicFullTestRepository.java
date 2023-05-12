@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ToeicFullTestRepository extends JpaRepository<ToeicFullTestEntity, Integer> {
     @Query("SELECT CASE WHEN COUNT(u) > 0 THEN TRUE ELSE FALSE END FROM ToeicFullTestEntity u WHERE u.id=:id")
@@ -21,4 +23,7 @@ public interface ToeicFullTestRepository extends JpaRepository<ToeicFullTestEnti
     @Query("SELECT u FROM ToeicFullTestEntity u INNER JOIN ToeicPartEntity v ON u.id=v.toeicFullTestEntity.id " +
             "WHERE v.id=:id")
     ToeicFullTestEntity getToeicFullTestEntityByToeicPartId(@Param("id") Integer id);
+
+    @Query("SELECT u.checkSum FROM ToeicFullTestEntity u GROUP BY u.id")
+    List<String> getListCheckSum();
 }

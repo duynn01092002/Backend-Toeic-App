@@ -55,4 +55,10 @@ public class ToeicFullTestController {
         BaseResponse response = this.toeicFullTestService.deleteToeicFullTestById(id);
         return response;
     }
+
+    @GetMapping("check-sum-string")
+    public BaseResponse getCheckSumString() {
+        BaseResponse response = this.toeicFullTestService.getCheckSumString();
+        return response;
+    }
 }
