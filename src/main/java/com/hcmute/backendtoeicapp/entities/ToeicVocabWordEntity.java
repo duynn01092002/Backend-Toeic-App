@@ -2,6 +2,8 @@ package com.hcmute.backendtoeicapp.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Data
 @Entity
@@ -12,6 +14,7 @@ public class ToeicVocabWordEntity {
 
     @ManyToOne
     @JoinColumn
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private ToeicStorageEntity wordImage;
 
     private String english;
@@ -29,10 +32,12 @@ public class ToeicVocabWordEntity {
 
     @ManyToOne
     @JoinColumn
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private ToeicStorageEntity audioStorage;
 
     @ManyToOne
     @JoinColumn
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private ToeicVocabTopicEntity topic;
 
     public ToeicVocabWordEntity() {
