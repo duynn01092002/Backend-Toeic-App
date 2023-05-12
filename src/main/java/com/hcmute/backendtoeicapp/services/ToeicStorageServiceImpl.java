@@ -4,13 +4,13 @@ import com.hcmute.backendtoeicapp.AppConfiguration;
 import com.hcmute.backendtoeicapp.base.BaseResponse;
 import com.hcmute.backendtoeicapp.base.ErrorResponse;
 import com.hcmute.backendtoeicapp.base.SuccessfulResponse;
+import com.hcmute.backendtoeicapp.dto.toeicStorage.GetListStorageEntityRequest;
 import com.hcmute.backendtoeicapp.entities.ToeicStorageEntity;
 import com.hcmute.backendtoeicapp.repositories.ToeicStorageRepository;
 import com.hcmute.backendtoeicapp.services.interfaces.ToeicStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartRequest;
 
 import java.io.*;
 import java.nio.file.FileAlreadyExistsException;
@@ -19,8 +19,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 @Service
 public class ToeicStorageServiceImpl implements ToeicStorageService {
@@ -173,6 +173,30 @@ public class ToeicStorageServiceImpl implements ToeicStorageService {
         response.setMessage("Upload file zip thành công");
         response.setData(toeicStorageEntities);
         return response;
+    }
+
+    @Override
+    public byte[] getListStorageEntity(GetListStorageEntityRequest request) throws IOException {
+        List<Integer> storageIds = request.getStorageIdList();
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ZipOutputStream zos = new ZipOutputStream(byteArrayOutputStream);
+        ZipEntry entry = null;
+        byte[] data = null;
+        Path root = Paths.get(this.appConfiguration.getToeicStoreDirectory());
+
+        for (Integer id : storageIds) {
+            ToeicStorageEntity entity = this.toeicStorageRepository.getById(id);
+            String fileName = entity.getFileName();
+            entry = new ZipEntry(id + ".bin");
+            zos.putNextEntry(entry);
+            data = Files.readAllBytes(root.resolve(fileName));
+            zos.write(data);
+            zos.closeEntry();
+        }
+        
+        zos.close();
+        return byteArrayOutputStream.toByteArray();
     }
 
     private static String getFileExtension(String name) {
