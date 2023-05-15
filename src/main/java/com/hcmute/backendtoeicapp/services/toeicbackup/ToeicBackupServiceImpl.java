@@ -121,6 +121,7 @@ public class ToeicBackupServiceImpl implements ToeicBackupService {
         ToeicFullTestEntity toeicFullTestEntity = new ToeicFullTestEntity();
         toeicFullTestEntity.setFullName(toeicFullTestBackupModel.getFullName());
         toeicFullTestEntity.setSlug(newSlug);
+        toeicFullTestEntity.setCheckSum(UUID.randomUUID() + "");
         toeicFullTestRepository.save(toeicFullTestEntity);
 
         for (ToeicPartBackupModel part : toeicFullTestBackupModel.getParts()) {
